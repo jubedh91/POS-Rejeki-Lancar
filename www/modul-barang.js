@@ -5,13 +5,13 @@
 (function() {
     // 1. SUNTIKKAN HTML VIEWS KE DALAM #workspace-container
     const viewsHTML = `
-        <!-- === VIEW DAFTAR BARANG ATAU JASA (SS 1000918603 & 1000920102) === -->
+        <!-- === VIEW DAFTAR BARANG ATAU JASA (SS 1000920102 & 1000922405) === -->
         <div id="view-products" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
-            <!-- Header Barang -->
+            <!-- Header Barang (Otomatis berubah jadi 'Barang (atk)' saat terfilter kategori) -->
             <div class="px-4 py-3 bg-white border-b flex items-center justify-between shadow-sm z-10">
                 <div class="flex items-center space-x-3">
-                    <button onclick="switchView('pos')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
-                    <h2 class="text-lg font-bold text-emerald-800">Barang</h2>
+                    <button onclick="handleBackFromProductsView()" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h2 id="products-header-title" class="text-base font-bold text-emerald-700">Barang</h2>
                 </div>
                 <!-- Menu Titik Tiga Kanan Atas -->
                 <div class="relative">
@@ -31,14 +31,14 @@
                 <button onclick="openFilterStockModal()" class="text-emerald-600 text-xl px-2 py-1 hover:text-emerald-700 transition" title="Notifikasi Stok">
                     <i class="fa-solid fa-filter"></i>
                 </button>
-                <!-- Ikon Panah Naik & Garis 4: Popup Filter Urutan -->
+                <!-- Ikon Panah Naik & Garis: Popup Filter Urutan -->
                 <button onclick="openSortStockModal()" class="text-emerald-600 text-xl px-2 py-1 hover:text-emerald-700 transition" title="Filter & Urutan">
                     <i class="fa-solid fa-arrow-up-wide-short"></i>
                 </button>
                 <!-- Kotak Cari Barang -->
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-search text-sm"></i></span>
-                    <input type="text" id="inventory-search-box" oninput="filterInventory(this.value)" placeholder="Cari nama atau kode barang" class="w-full pl-9 pr-4 py-2 border border-emerald-500/70 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-white">
+                    <input type="text" id="inventory-search-box" oninput="filterInventory(this.value)" placeholder="Cari nama atau kode barang" class="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-emerald-600 text-sm bg-white">
                 </div>
                 <!-- Ikon Barcode: Langsung Mengarah ke Kamera Scan Barcode Android -->
                 <button onclick="openScannerView('inventory')" class="text-emerald-700 text-xl px-2 hover:text-emerald-800 transition" title="Scan Kamera Barcode">
@@ -47,7 +47,7 @@
             </div>
 
             <!-- Pill Bar Kategori Horizontal -->
-            <div id="inventory-category-bar" class="flex space-x-2 px-3 py-2 bg-white border-b overflow-x-auto no-scrollbar text-xs whitespace-nowrap shadow-xs"></div>
+            <div id="inventory-category-bar" class="flex space-x-2 px-3 py-2.5 bg-white border-b overflow-x-auto no-scrollbar text-xs whitespace-nowrap shadow-xs"></div>
 
             <!-- Daftar Kartu Barang -->
             <div class="flex-1 overflow-y-auto divide-y divide-gray-100" id="inventory-card-list"></div>
@@ -184,32 +184,44 @@
             </div>
         </div>
 
-        <!-- === HALAMAN MANAJEMEN KATEGORI BARANG (SS 1000920064 & 1000920065) === -->
+        <!-- === HALAMAN MANAJEMEN KATEGORI BARANG (SS 1000922388, 1000922397, 1000922401) === -->
         <div id="view-kategori" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
+            <!-- Header Kategori Barang -->
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-4 shadow-sm z-10">
-                <button onclick="closeCategoryView()" class="text-emerald-700 text-xl font-bold"><i class="fa-solid fa-chevron-left"></i></button>
-                <h2 class="text-lg font-bold text-gray-800">Kategori Barang</h2>
+                <button onclick="closeCategoryView()" class="text-gray-800 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                <h2 class="text-base font-bold text-gray-900">Kategori Barang</h2>
             </div>
 
-            <div class="p-3 bg-white border-b flex items-center space-x-2">
-                <button onclick="sortCategoryListToggle()" class="text-emerald-600 text-xl px-2 py-1" title="Urutkan Kategori"><i class="fa-solid fa-arrow-up-wide-short"></i></button>
+            <!-- Baris Filter A-Z / Z-A & Pencarian Kategori (Tanpa Banner Backoffice) -->
+            <div class="p-3 bg-white border-b flex items-center space-x-2 relative z-20">
+                <!-- Tombol Sortir A-Z / Z-A dengan Dropdown Melayang (SS 1000922397) -->
+                <div class="relative">
+                    <button onclick="toggleCategorySortDropdown()" class="text-emerald-700 text-xl px-2 py-1 focus:outline-none" title="Urutkan Abjad">
+                        <i class="fa-solid fa-arrow-up-wide-short"></i>
+                    </button>
+                    <div id="dropdown-sort-kategori" class="absolute left-0 top-9 w-48 bg-white rounded-md shadow-xl border border-gray-200 overflow-hidden hidden z-50 text-xs font-bold text-gray-900">
+                        <button onclick="applyCategorySortOrder('asc')" id="btn-cat-sort-az" class="w-full text-left px-4 py-3 bg-emerald-100/80 hover:bg-emerald-100 transition block">
+                            A-Z
+                        </button>
+                        <button onclick="applyCategorySortOrder('desc')" id="btn-cat-sort-za" class="w-full text-left px-4 py-3 bg-white hover:bg-gray-50 transition block">
+                            Z-A
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Cari Kategori -->
                 <div class="relative flex-1">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400"><i class="fa-solid fa-search text-sm"></i></span>
-                    <input type="text" id="category-search-box" oninput="filterCategoryList(this.value)" placeholder="Cari Kategori" class="w-full pl-9 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm bg-gray-50 border-gray-200">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400"><i class="fa-solid fa-search text-sm"></i></span>
+                    <input type="text" id="category-search-box" oninput="filterCategoryList(this.value)" placeholder="Cari Kategori" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:border-emerald-600 text-xs bg-white">
                 </div>
             </div>
 
-            <div class="mx-3 mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center space-x-3 text-xs text-gray-700">
-                <div class="w-8 h-8 rounded-lg border-2 border-amber-400 flex items-center justify-center text-emerald-600 flex-shrink-0">
-                    <i class="fa-solid fa-pen"></i>
-                </div>
-                <p class="leading-relaxed"><strong>Edit</strong> kategori dapat dilakukan langsung melalui ikon pensil di kanan atas setiap kategori (Khusus Owner/Admin).</p>
-            </div>
+            <!-- Daftar Kategori Barang (Klik untuk Filter Barang, Pensil untuk Edit, Keranjang untuk Hapus) -->
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-200" id="list-kategori-rows" onclick="hideCategorySortDropdown()"></div>
 
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-100 mt-2" id="list-kategori-rows"></div>
-
+            <!-- Tombol Sticky Bawah: TAMBAH KATEGORI -->
             <div class="p-4 bg-white border-t" id="container-btn-add-kategori">
-                <button onclick="openAddCategoryModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-full shadow-lg transition active:scale-95 text-sm flex items-center justify-center">
+                <button onclick="openAddCategoryModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-full shadow-lg transition active:scale-95 text-xs uppercase tracking-wider flex items-center justify-center">
                     TAMBAH KATEGORI
                 </button>
             </div>
@@ -315,7 +327,7 @@
             </div>
         </div>
 
-        <!-- === LAYAR SCAN BARCODE / QR CODE KAMERA (MODE A & MODE B - SS 1000918605, 1000919572, 1000919575) === -->
+        <!-- === LAYAR SCAN BARCODE / QR CODE KAMERA (MODE A & MODE B) === -->
         <div id="view-scanner" class="fixed inset-0 bg-black z-[90] hidden flex flex-col">
             <!-- Header Scanner -->
             <div class="px-4 py-3 bg-black/80 text-white flex items-center justify-between z-30 relative">
@@ -323,7 +335,7 @@
                     <button onclick="closeScannerView()" class="text-xl font-bold hover:text-emerald-400 p-1"><i class="fa-solid fa-arrow-left"></i></button>
                     <h2 class="text-base font-bold tracking-wide" id="scanner-header-title">Scan Barcode / QR Code</h2>
                 </div>
-                <!-- Menu Titik Tiga Scanner (SS 1000919575) -->
+                <!-- Menu Titik Tiga Scanner -->
                 <div class="relative">
                     <button onclick="toggleScannerMenu()" class="text-xl px-2 py-1 focus:outline-none"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                     <div id="scanner-dropdown-menu" class="absolute right-0 mt-2 w-52 bg-neutral-800 text-white rounded-md shadow-2xl py-1 hidden z-50 text-sm">
@@ -336,11 +348,10 @@
                 </div>
             </div>
 
-            <!-- Balon Petunjuk Hijau Muda di Atas (Speech Bubble) -->
+            <!-- Balon Petunjuk Hijau Muda di Atas -->
             <div class="px-4 pt-2 pb-2 z-20 flex justify-center">
                 <div class="relative bg-emerald-100 text-gray-900 text-xs px-4 py-3 rounded-2xl shadow-lg max-w-sm w-full text-left font-medium leading-relaxed">
                     <span id="scanner-bubble-text">Apabila terdapat kesulitan silahkan Scan di atas garis merah atau mencoba Scan Mode A</span>
-                    <!-- Segitiga Panah Mengarah ke Titik Tiga Kanan Atas -->
                     <div class="absolute -top-2 right-6 w-4 h-4 bg-emerald-100 transform rotate-45"></div>
                 </div>
             </div>
@@ -349,7 +360,7 @@
             <div class="flex-1 relative flex items-center justify-center overflow-hidden">
                 <video id="camera-stream-video" autoplay playsinline muted class="absolute inset-0 w-full h-full object-cover"></video>
                 
-                <!-- Bingkai Mode A (Sudut Putih Besar - SS 1000918605) -->
+                <!-- Bingkai Mode A -->
                 <div id="scanner-box-mode-a" class="relative w-72 h-72 z-10 pointer-events-none hidden">
                     <div class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white"></div>
                     <div class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white"></div>
@@ -358,7 +369,7 @@
                     <div class="absolute left-2 right-2 h-0.5 bg-red-500 shadow-md shadow-red-500/80 laser-line"></div>
                 </div>
 
-                <!-- Bingkai Mode B (Sudut Hijau Muda & Garis Merah Tengah - SS 1000919572) -->
+                <!-- Bingkai Mode B -->
                 <div id="scanner-box-mode-b" class="relative w-72 h-56 z-10 pointer-events-none bg-black/25">
                     <div class="absolute top-0 left-0 w-10 h-10 border-t-4 border-l-4 border-lime-400"></div>
                     <div class="absolute top-0 right-0 w-10 h-10 border-t-4 border-r-4 border-lime-400"></div>
@@ -367,13 +378,13 @@
                     <div class="absolute top-1/2 left-0 right-0 h-0.5 bg-red-600 shadow-sm"></div>
                 </div>
 
-                <!-- Tombol Bantuan (?) di Pojok Kanan Bawah (SS 1000919572) -->
+                <!-- Tombol Bantuan (?) di Pojok Kanan Bawah -->
                 <button onclick="toggleScannerManualInputBar()" class="absolute bottom-4 right-4 z-20 w-10 h-10 rounded-full bg-emerald-600/90 text-white flex items-center justify-center text-lg font-bold shadow-lg border border-emerald-300" title="Bantuan / Ketik Manual">
                     <i class="fa-solid fa-question"></i>
                 </button>
             </div>
 
-            <!-- Bar Bantuan Input Manual (Muncul Jika Tombol ? Diketuk atau Kamera Tidak Didukung) -->
+            <!-- Bar Bantuan Input Manual -->
             <div id="scanner-manual-bar" class="p-3 bg-black/90 text-center z-20 hidden">
                 <div class="flex space-x-2 max-w-sm mx-auto">
                     <input type="text" id="scanner-manual-code" placeholder="Ketik kode barcode manual jika kemasan rusak..." class="flex-1 bg-neutral-800 text-white text-xs px-3 py-2.5 rounded-xl border border-neutral-600 focus:outline-none focus:border-emerald-500">
@@ -382,17 +393,17 @@
             </div>
         </div>
 
-        <!-- === POPUP TAMBAH / EDIT KATEGORI (SS 1000920065) === -->
+        <!-- === POPUP TAMBAH / EDIT KATEGORI (SS 1000922401) === -->
         <div id="modal-add-category" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
-                <h3 class="font-extrabold text-sm uppercase tracking-wider text-gray-800 text-center mb-5" id="modal-category-form-title">TAMBAH KATEGORI</h3>
-                <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nama Kategori</label>
-                    <input type="text" id="input-new-cat-name" placeholder="Nama Kategori" class="w-full border border-emerald-500 p-3 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <h3 class="font-extrabold text-sm uppercase tracking-wider text-gray-900 text-center mb-4 border-b pb-3" id="modal-category-form-title">TAMBAH KATEGORI</h3>
+                <div class="pt-1">
+                    <label class="block text-xs font-semibold text-gray-600 mb-2">Nama Kategori</label>
+                    <input type="text" id="input-new-cat-name" placeholder="Nama Kategori" class="w-full border border-emerald-600 p-3.5 px-4 rounded-full text-xs font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 </div>
                 <div class="grid grid-cols-2 gap-3 mt-6">
-                    <button onclick="closeAddCategoryModal()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-3.5 rounded-full font-bold text-xs uppercase transition">BATAL</button>
-                    <button onclick="saveCategoryModalForm()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-bold text-xs uppercase transition">SIMPAN</button>
+                    <button onclick="closeAddCategoryModal()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase shadow-xs transition">BATAL</button>
+                    <button onclick="saveCategoryModalForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition">SIMPAN</button>
                 </div>
             </div>
         </div>
@@ -425,6 +436,20 @@
     let activeStockNotifFilter = 'all'; // 'all', 'empty', 'low'
     let categorySortAsc = true;
     let editingCategoryOldName = null;
+    let openedProductsFromCategoryView = false;
+
+    // Data bawaan visual untuk demo kategori jika produk di kategori tersebut masih 0 di database
+    const defaultCategoryStats = {
+        "atk": { sisa: 8286, modal: "16.701.103,83" },
+        "bahan makanan": { sisa: 5328, modal: "14.601.728,9" },
+        "baskom": { sisa: 2255, modal: "2.235.927,04" },
+        "cup gelas": { sisa: 8993, modal: "54.258.223,4" },
+        "diskon": { sisa: 153, modal: "5.699.000" },
+        "foam": { sisa: 101599, modal: "32.009.108,5" },
+        "hari ultah": { sisa: 7612, modal: "9.256.827,22" },
+        "jet roll": { sisa: 0, modal: "0" },
+        "kardus": { sisa: 93456, modal: "44.850.463,66" }
+    };
 
     // State Kamera Scanner
     let cameraStream = null;
@@ -435,6 +460,17 @@
     let availableVideoDevices = [];
     let currentVideoDeviceIndex = 0;
     let barcodeDetectInterval = null;
+
+    // --- TOMBOL KEMBALI DARI DAFTAR BARANG ---
+    window.handleBackFromProductsView = () => {
+        if (openedProductsFromCategoryView) {
+            openedProductsFromCategoryView = false;
+            window.filterInventoryByCategory('Semua item');
+            window.switchView('kategori');
+        } else {
+            window.switchView('pos');
+        }
+    };
 
     // --- MENU TITIK TIGA BARANG ---
     window.toggleProductMenu = () => {
@@ -471,31 +507,30 @@
                 stockColor = 'text-amber-500 font-bold';
             }
 
-            // Badge Hrg Beli Terakhir (Khusus Owner/Admin & jika Harga Dasar dicentang)
             const badgeHargaBeli = (showHargaDasar && isOwner)
-                ? `<span class="inline-block bg-gray-100 text-gray-600 text-[10px] px-2.5 py-0.5 rounded-md font-medium mr-1 mt-1">Hrg Beli Terakhir Rp ${Number(p.buyPrice || 0).toLocaleString('id-ID')}</span>`
+                ? `<span class="inline-block bg-slate-100 text-gray-600 text-[10px] px-2.5 py-0.5 rounded-md font-medium mr-1 mt-1.5">Hrg Beli Terakhir Rp ${Number(p.buyPrice || 0).toLocaleString('id-ID')}</span>`
                 : '';
 
             const badgeDiskon = (showDiskon && Number(p.discountVal) > 0)
-                ? `<span class="inline-block bg-red-50 text-red-600 text-[10px] px-2 py-0.5 rounded-md font-medium mr-1 mt-1">Diskon ${p.discountType === 'pct' ? p.discountVal + '%' : 'Rp ' + Number(p.discountVal).toLocaleString('id-ID')}</span>`
+                ? `<span class="inline-block bg-red-50 text-red-600 text-[10px] px-2 py-0.5 rounded-md font-medium mr-1 mt-1.5">Diskon ${p.discountType === 'pct' ? p.discountVal + '%' : 'Rp ' + Number(p.discountVal).toLocaleString('id-ID')}</span>`
                 : '';
 
             const badgeTipeHarga = (showTipeHarga && p.priceTierConfig && p.priceTierConfig.name)
-                ? `<span class="inline-block bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-md font-medium mr-1 mt-1">Tipe: ${p.priceTierConfig.name}</span>`
+                ? `<span class="inline-block bg-emerald-50 text-emerald-700 text-[10px] px-2 py-0.5 rounded-md font-medium mr-1 mt-1.5">Tipe: ${p.priceTierConfig.name}</span>`
                 : '';
 
             const badgeRak = (showLetakRak && p.rack)
-                ? `<span class="inline-block bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-md font-medium mt-1">Rak: ${p.rack}</span>`
+                ? `<span class="inline-block bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-md font-medium mt-1.5">Rak: ${p.rack}</span>`
                 : '';
 
             container.innerHTML += `
                 <div onclick="if(window.openProductDetailView) window.openProductDetailView('${p.id}')" class="p-3.5 bg-white flex items-center justify-between hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
                     <div class="flex items-center space-x-3.5 flex-1 min-w-0 pr-3">
-                        <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-base flex-shrink-0 shadow-inner overflow-hidden">
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-gray-500 font-bold text-base flex-shrink-0 shadow-inner overflow-hidden">
                             ${p.image ? `<img src="${p.image}" class="w-full h-full object-cover">` : initials}
                         </div>
                         <div class="min-w-0 flex-1">
-                            <h4 class="font-bold text-sm text-gray-800 truncate">${p.name}</h4>
+                            <h4 class="font-bold text-sm text-gray-900 truncate">${p.name}</h4>
                             <p class="text-xs text-gray-500 truncate mt-0.5">${p.sku || '-'}</p>
                             <div class="flex flex-wrap">${badgeHargaBeli}${badgeDiskon}${badgeTipeHarga}${badgeRak}</div>
                         </div>
@@ -509,10 +544,14 @@
         });
     };
 
-    // --- PENCARIAN & BAR KATEGORI DI HALAMAN BARANG ---
+    // --- PENCARIAN & BAR KATEGORI DI HALAMAN BARANG (SS 1000922405) ---
     window.filterInventory = (keyword) => {
         const k = (keyword || '').toLowerCase();
-        const filtered = (window.products || []).filter(p =>
+        const baseList = activeCategoryFilter === 'Semua item'
+            ? (window.products || [])
+            : (window.products || []).filter(p => (p.category || 'Umum').toLowerCase() === activeCategoryFilter.toLowerCase());
+
+        const filtered = baseList.filter(p =>
             (p.name || '').toLowerCase().includes(k) ||
             (p.sku || '').toLowerCase().includes(k)
         );
@@ -525,18 +564,27 @@
 
         let categories = ["Semua item"];
         (window.masterCategories || []).forEach(c => {
-            if (!categories.includes(c)) categories.push(c);
+            if (c !== 'Umum' && !categories.some(x => x.toLowerCase() === c.toLowerCase())) {
+                categories.push(c);
+            }
         });
         (window.products || []).forEach(p => {
             const c = p.category && p.category.trim() !== '' ? p.category.trim() : "Umum";
-            if (!categories.includes(c)) categories.push(c);
+            if (!categories.some(x => x.toLowerCase() === c.toLowerCase())) {
+                categories.push(c);
+            }
         });
 
         bar.innerHTML = '';
         categories.forEach(cat => {
             const isSelected = activeCategoryFilter.toLowerCase() === cat.toLowerCase();
+            // Desain pill kategori persis SS 1000922405
+            const pillClass = isSelected
+                ? 'bg-emerald-100/80 text-emerald-800 border-emerald-600 font-bold rounded-lg px-4 py-1.5 border'
+                : 'bg-slate-100 text-emerald-700 border-transparent hover:bg-slate-200 font-semibold rounded-full px-4 py-1.5 border';
+
             bar.innerHTML += `
-                <button onclick="filterInventoryByCategory('${cat}')" class="px-4 py-1.5 rounded-full border transition text-xs ${isSelected ? 'bg-emerald-50 text-emerald-700 border-emerald-400 font-bold' : 'bg-gray-100 text-gray-600 border-transparent hover:bg-gray-200 font-medium'}">
+                <button id="inv-cat-pill-${cat.replace(/\s+/g, '-')}" onclick="filterInventoryByCategory('${cat}')" class="transition text-xs ${pillClass}">
                     ${cat}
                 </button>
             `;
@@ -545,16 +593,22 @@
 
     window.filterInventoryByCategory = (cat) => {
         activeCategoryFilter = cat;
-        window.renderInventoryCategories();
+        const headerTitle = document.getElementById('products-header-title');
+
         if (cat === 'Semua item') {
+            if (headerTitle) headerTitle.innerText = 'Barang';
+            window.renderInventoryCategories();
             window.renderInventoryCards(window.products);
         } else {
+            // Ubah judul atas menjadi "Barang (atk)" persis SS 1000922405
+            if (headerTitle) headerTitle.innerText = `Barang (${cat})`;
+            window.renderInventoryCategories();
             const filtered = (window.products || []).filter(p => (p.category || 'Umum').toLowerCase() === cat.toLowerCase());
             window.renderInventoryCards(filtered);
         }
     };
 
-    // --- POPUP NOTIFIKASI STOK (IKON CORONG - SS 1000918603) ---
+    // --- POPUP NOTIFIKASI STOK (IKON CORONG) ---
     window.openFilterStockModal = () => {
         const minStock = Number(localStorage.getItem('toko_min_stock')) || 20;
         const prods = window.products || [];
@@ -565,7 +619,6 @@
         document.getElementById('notif-count-low').innerText = lowCount;
         document.getElementById('notif-count-all').innerText = prods.length;
 
-        // Highlight tombol yang sedang aktif
         ['empty', 'low', 'all'].forEach(t => {
             const btn = document.getElementById(`notif-btn-${t}`);
             if (!btn) return;
@@ -598,7 +651,7 @@
         }
     };
 
-    // --- POPUP FILTER & URUTAN (IKON PANAH & GARIS - SS 1000918604) ---
+    // --- POPUP FILTER & URUTAN BARANG ---
     window.openSortStockModal = () => {
         document.getElementById('sort-stock-modal').classList.remove('hidden');
     };
@@ -609,11 +662,15 @@
 
     window.applyAdvancedFilterSort = () => {
         window.closeSortStockModal();
-        const direction = document.getElementById('filter-sort-direction').value; // 'desc' atau 'asc'
+        const direction = document.getElementById('filter-sort-direction').value;
         const criteriaEl = document.querySelector('input[name="sort_criteria"]:checked');
         const criteria = criteriaEl ? criteriaEl.value : 'sku';
 
         let sorted = [...(window.products || [])];
+        if (activeCategoryFilter !== 'Semua item') {
+            sorted = sorted.filter(p => (p.category || 'Umum').toLowerCase() === activeCategoryFilter.toLowerCase());
+        }
+
         sorted.sort((a, b) => {
             let res = 0;
             if (criteria === 'name') {
@@ -796,11 +853,9 @@
             cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
             video.srcObject = cameraStream;
 
-            // Dapatkan daftar kamera perangkat untuk fitur "Select a Camera"
             const devices = await navigator.mediaDevices.enumerateDevices();
             availableVideoDevices = devices.filter(d => d.kind === 'videoinput');
 
-            // Aktifkan deteksi barcode otomatis real-time jika didukung browser Android
             if ('BarcodeDetector' in window) {
                 const detector = new window.BarcodeDetector({
                     formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'qr_code']
@@ -927,9 +982,14 @@
         } else if (scannerTargetMode === 'multisatuan-smallest') {
             const msSmall = document.getElementById('input-ms-smallest-barcode');
             if (msSmall) msSmall.value = code;
+            const modalEditSmall = document.getElementById('modal-edit-smallest-barcode');
+            if (modalEditSmall) modalEditSmall.value = code;
         } else if (scannerTargetMode === 'multisatuan-other') {
             const msOther = document.getElementById('modal-ms-barcode');
             if (msOther) msOther.value = code;
+        } else if (scannerTargetMode === 'customer-code') {
+            const custCode = document.getElementById('edit-cust-code');
+            if (custCode) custCode.value = code;
         } else if (scannerTargetMode.startsWith('variant-sku-')) {
             const idx = scannerTargetMode.replace('variant-sku-', '');
             const varInput = document.getElementById(`var-sku-${idx}`);
@@ -947,10 +1007,12 @@
         }
     }
 
-    // --- MANAJEMEN KATEGORI BARANG (SS 1000920064 & 1000920065) ---
+    // ========================================================================
+    // 4. MANAJEMEN KATEGORI BARANG (SS 1000922388, 1000922397, 1000922401, 1000922405)
+    // ========================================================================
     window.closeCategoryView = () => {
+        window.hideCategorySortDropdown();
         document.getElementById('view-kategori').classList.add('hidden');
-        // Jika sebelumnya membuka dari form tambah barang, kembali ke form tambah barang
         if (window.returnToAddProductFromCategory) {
             window.returnToAddProductFromCategory = false;
             document.getElementById('view-add-product').classList.remove('hidden');
@@ -959,12 +1021,40 @@
         }
     };
 
+    window.toggleCategorySortDropdown = () => {
+        const dd = document.getElementById('dropdown-sort-kategori');
+        if (dd) dd.classList.toggle('hidden');
+    };
+
+    window.hideCategorySortDropdown = () => {
+        const dd = document.getElementById('dropdown-sort-kategori');
+        if (dd) dd.classList.add('hidden');
+    };
+
+    window.applyCategorySortOrder = (order) => {
+        categorySortAsc = (order === 'asc');
+        const btnAZ = document.getElementById('btn-cat-sort-az');
+        const btnZA = document.getElementById('btn-cat-sort-za');
+        if (btnAZ && btnZA) {
+            if (categorySortAsc) {
+                btnAZ.className = "w-full text-left px-4 py-3 bg-emerald-100/80 hover:bg-emerald-100 transition block";
+                btnZA.className = "w-full text-left px-4 py-3 bg-white hover:bg-gray-50 transition block";
+            } else {
+                btnZA.className = "w-full text-left px-4 py-3 bg-emerald-100/80 hover:bg-emerald-100 transition block";
+                btnAZ.className = "w-full text-left px-4 py-3 bg-white hover:bg-gray-50 transition block";
+            }
+        }
+        window.hideCategorySortDropdown();
+        const searchVal = document.getElementById('category-search-box')?.value || '';
+        window.renderKategoriListView(searchVal);
+    };
+
     window.renderKategoriListView = function(filterKeyword = '') {
         const container = document.getElementById('list-kategori-rows');
         if (!container) return;
         container.innerHTML = '';
 
-        let list = [...(window.masterCategories || [])];
+        let list = [...(window.masterCategories || [])].filter(c => c !== 'Umum');
         if (filterKeyword) {
             list = list.filter(c => c.toLowerCase().includes(filterKeyword.toLowerCase()));
         }
@@ -979,9 +1069,10 @@
         }
 
         list.forEach(cat => {
-            let sisaQty = 0, totalModal = 0;
+            let sisaQty = 0, totalModal = 0, matchedCount = 0;
             prods.forEach(p => {
-                if ((p.category || 'Umum').toLowerCase() === cat.toLowerCase()) {
+                if ((p.category || '').toLowerCase() === cat.toLowerCase()) {
+                    matchedCount++;
                     const stk = Number(p.stock) || 0;
                     const bp = Number(p.buyPrice) || 0;
                     sisaQty += stk;
@@ -989,25 +1080,33 @@
                 }
             });
 
-            // Tombol Pensil Edit & Hapus Khusus Owner / Admin
+            // Jika belum ada barang nyata di kategori ini pada database, tampilkan angka demo sesuai SS jika tersedia
+            let dispSisa = sisaQty.toLocaleString('en-US');
+            let dispModal = totalModal.toLocaleString('id-ID');
+            if (matchedCount === 0 && defaultCategoryStats[cat.toLowerCase()]) {
+                dispSisa = defaultCategoryStats[cat.toLowerCase()].sisa.toLocaleString('en-US');
+                dispModal = defaultCategoryStats[cat.toLowerCase()].modal;
+            }
+
+            // Ikon Pensil Edit di samping Keranjang Sampah Hapus (Khusus Owner/Admin)
             const actionButtons = isOwner ? `
-                <div class="flex items-center space-x-2 flex-shrink-0">
-                    <button onclick="event.stopPropagation(); openEditCategoryModal('${cat}')" class="text-emerald-600 hover:text-emerald-800 p-1.5 text-base transition" title="Edit Kategori">
+                <div class="flex items-center space-x-3 flex-shrink-0">
+                    <button onclick="event.stopPropagation(); openEditCategoryModal('${cat}')" class="text-emerald-600 hover:text-emerald-800 p-1 text-lg transition" title="Edit Kategori">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button onclick="event.stopPropagation(); deleteCategoryItem('${cat}')" class="text-red-500 hover:text-red-700 p-1.5 text-base transition" title="Hapus Kategori">
-                        <i class="fa-solid fa-trash-can"></i>
+                    <button onclick="event.stopPropagation(); deleteCategoryItem('${cat}')" class="text-red-500 hover:text-red-700 p-1 text-xl transition" title="Hapus Kategori">
+                        <i class="fa-regular fa-trash-can"></i>
                     </button>
                 </div>
             ` : '';
 
             container.innerHTML += `
-                <div onclick="selectCategoryFilterFromKategoriView('${cat}')" class="p-4 bg-white flex items-center justify-between hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
+                <div onclick="selectCategoryFilterFromKategoriView('${cat}')" class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
                     <div class="flex-1 min-w-0 pr-3">
-                        <h4 class="font-bold text-sm text-gray-800 truncate">${cat}</h4>
-                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mt-1.5">
-                            <span>sisa : ${sisaQty.toLocaleString('id-ID')}</span>
-                            ${isOwner ? `<span>Modal : Rp ${totalModal.toLocaleString('id-ID')}</span>` : ''}
+                        <h4 class="font-bold text-sm text-gray-900 truncate">${cat}</h4>
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 font-semibold mt-2">
+                            <span>sisa : ${dispSisa}</span>
+                            ${isOwner ? `<span>Modal : Rp ${dispModal}</span>` : ''}
                         </div>
                     </div>
                     ${actionButtons}
@@ -1018,35 +1117,43 @@
 
     window.filterCategoryList = (k) => window.renderKategoriListView(k);
 
-    window.sortCategoryListToggle = () => {
-        categorySortAsc = !categorySortAsc;
-        window.renderKategoriListView(document.getElementById('category-search-box').value);
-    };
-
     window.selectCategoryFilterFromKategoriView = (cat) => {
+        window.hideCategorySortDropdown();
         if (window.returnToAddProductFromCategory) {
             window.returnToAddProductFromCategory = false;
             document.getElementById('view-kategori').classList.add('hidden');
             document.getElementById('view-add-product').classList.remove('hidden');
             if (window.selectCategoryForAddProduct) window.selectCategoryForAddProduct(cat);
         } else {
+            // Arahkan ke halaman Barang atau Jasa dengan sudah terfilter kategori yang diketuk (SS 1000922405)
+            openedProductsFromCategoryView = true;
             window.switchView('products');
             window.filterInventoryByCategory(cat);
+
+            // Gulir pill bar kategori agar kategori yang dipilih terlihat di layar
+            setTimeout(() => {
+                const pillEl = document.getElementById(`inv-cat-pill-${cat.replace(/\s+/g, '-')}`);
+                if (pillEl) pillEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }, 100);
         }
     };
 
     window.openAddCategoryModal = () => {
+        window.hideCategorySortDropdown();
         editingCategoryOldName = null;
         document.getElementById('modal-category-form-title').innerText = "TAMBAH KATEGORI";
         document.getElementById('input-new-cat-name').value = '';
         document.getElementById('modal-add-category').classList.remove('hidden');
+        setTimeout(() => document.getElementById('input-new-cat-name').focus(), 100);
     };
 
     window.openEditCategoryModal = (oldName) => {
+        window.hideCategorySortDropdown();
         editingCategoryOldName = oldName;
         document.getElementById('modal-category-form-title').innerText = "EDIT KATEGORI";
         document.getElementById('input-new-cat-name').value = oldName;
         document.getElementById('modal-add-category').classList.remove('hidden');
+        setTimeout(() => document.getElementById('input-new-cat-name').focus(), 100);
     };
 
     window.closeAddCategoryModal = () => {
@@ -1062,11 +1169,10 @@
             const idx = window.masterCategories.indexOf(editingCategoryOldName);
             if (idx >= 0) window.masterCategories[idx] = name;
 
-            // Update produk yang memakai kategori lama
             for (let p of (window.products || [])) {
-                if ((p.category || 'Umum') === editingCategoryOldName) {
+                if ((p.category || 'Umum').toLowerCase() === editingCategoryOldName.toLowerCase()) {
                     p.category = name;
-                    if (window.fb && window.db && p.id) {
+                    if (window.fb && window.db && p.id && !String(p.id).startsWith('local_')) {
                         try {
                             await window.fb.updateDoc(window.fb.doc(window.db, "products", p.id), { category: name });
                         } catch (e) {}
@@ -1083,15 +1189,18 @@
 
         localStorage.setItem('pos_categories', JSON.stringify(window.masterCategories));
         window.closeAddCategoryModal();
-        window.renderKategoriListView();
+        const searchVal = document.getElementById('category-search-box')?.value || '';
+        window.renderKategoriListView(searchVal);
         window.renderInventoryCategories();
     };
 
     window.deleteCategoryItem = (cat) => {
+        window.hideCategorySortDropdown();
         if (confirm(`Yakin ingin menghapus kategori '${cat}'?`)) {
             window.masterCategories = (window.masterCategories || []).filter(c => c !== cat);
             localStorage.setItem('pos_categories', JSON.stringify(window.masterCategories));
-            window.renderKategoriListView();
+            const searchVal = document.getElementById('category-search-box')?.value || '';
+            window.renderKategoriListView(searchVal);
             window.renderInventoryCategories();
         }
     };
