@@ -1,63 +1,12 @@
 // ============================================================================
-// MODUL 10: DISKON, PAJAK, PAJAK DEFAULT, BIAYA, & HUB MANAJEMEN (13 SS)
+// MODUL 10: DISKON, PAJAK, PAJAK DEFAULT, BIAYA, & HUB MANAJEMEN
+// (FIX: UI KLASIK SESUAI SS 1000926455)
 // ============================================================================
 
 (function() {
     // 1. SUNTIKKAN HTML VIEWS KE DALAM #workspace-container
     const viewsHTML = `
-        <!-- === 0. HALAMAN DAFTAR 10 MENU MANAJEMEN (SS 1000924380) === -->
-        <div id="view-manajemen-hub" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
-            <div class="px-4 py-3.5 bg-white border-b flex items-center justify-between shadow-xs z-10">
-                <button onclick="toggleSidebar()" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-bars-staggered"></i></button>
-                <h2 class="text-sm font-extrabold text-emerald-600 tracking-wider uppercase">MANAJEMEN</h2>
-                <div class="w-6"></div>
-            </div>
-
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-100 text-xs font-bold text-gray-900">
-                <div onclick="switchView('products')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-box-open"></i></div>
-                    <span>Barang atau jasa</span>
-                </div>
-                <div onclick="switchView('kategori')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-border-all"></i></div>
-                    <span>Kategori barang</span>
-                </div>
-                <div onclick="switchView('pos')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-cart-shopping"></i></div>
-                    <span>Transaksi Penjualan</span>
-                </div>
-                <div onclick="if(window.openManajemenStokMenuView) window.openManajemenStokMenuView(); else switchView('products');" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-dolly"></i></div>
-                    <span>Manajemen stok</span>
-                </div>
-                <div onclick="switchView('pembelian')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-boxes-packing"></i></div>
-                    <span>Pembelian dari Supplier</span>
-                </div>
-                <div onclick="switchView('pelanggan')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-regular fa-id-card"></i></div>
-                    <span>Pelanggan dan Supplier</span>
-                </div>
-                <div onclick="switchView('debts')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-file-pen"></i></div>
-                    <span>Hutang dan Piutang</span>
-                </div>
-                <div onclick="switchView('diskon')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                    <span>Diskon, Pajak, dan Biaya</span>
-                </div>
-                <div onclick="switchView('opname')" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-solid fa-clipboard-check"></i></div>
-                    <span>Stok Opname</span>
-                </div>
-                <div onclick="if(window.openMarketingMainView) window.openMarketingMainView(); else switchView('marketing');" class="p-4 flex items-center space-x-4 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition">
-                    <div class="w-9 h-9 flex items-center justify-center text-emerald-600 text-2xl"><i class="fa-regular fa-star"></i></div>
-                    <span>Marketing</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- === 1. HALAMAN UTAMA DISKON, PAJAK, DAN BIAYA (SS 1000924442) === -->
+        <!-- === 1. HALAMAN UTAMA DISKON, PAJAK, DAN BIAYA (SS 1000926455) === -->
         <div id="view-diskon" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-10">
                 <button onclick="switchView('manajemen-hub')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
@@ -91,7 +40,7 @@
             </div>
         </div>
 
-        <!-- === 2. HALAMAN DAFTAR DISKON (SS 1000924443 & 1000924445) === -->
+        <!-- === 2. HALAMAN DAFTAR DISKON === -->
         <div id="view-sub-diskon" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-20">
                 <button onclick="switchView('diskon')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
@@ -104,63 +53,63 @@
                     <button onclick="toggleSubDiskonSortMenu()" class="text-emerald-700 text-xl px-2 py-1 focus:outline-none">
                         <i class="fa-solid fa-arrow-up-wide-short"></i>
                     </button>
-                    <!-- Dropdown 2 Pilihan: Nama & Diskon (SS 1000924445) -->
-                    <div id="dropdown-sub-diskon-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-2 hidden z-50 text-xs font-medium text-gray-900">
-                        <button onclick="applySubDiskonSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Nama</button>
+                    <!-- Dropdown 2 Pilihan -->
+                    <div id="dropdown-sub-diskon-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-1 hidden z-50 text-xs font-bold text-gray-900">
+                        <button onclick="applySubDiskonSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Nama</button>
                         <button onclick="applySubDiskonSort('amount')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Diskon</button>
                     </div>
                 </div>
 
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-700"><i class="fa-solid fa-search text-base"></i></span>
-                    <input type="text" id="input-search-sub-diskon" oninput="renderSubDiskonList(this.value)" placeholder="Cari diskon" class="w-full pl-9 pr-4 py-2 border border-emerald-600 rounded-md text-xs text-gray-900 focus:outline-none">
+                    <input type="text" id="input-search-sub-diskon" oninput="renderSubDiskonList(this.value)" placeholder="Cari diskon" class="w-full pl-9 pr-4 py-2 border border-emerald-600 rounded-full text-xs font-bold text-gray-900 focus:outline-none">
                 </div>
             </div>
 
             <!-- Daftar Item Diskon -->
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-200 pb-24" id="container-sub-diskon-rows" onclick="hideSubDiskonSortMenu()"></div>
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-100 pb-24 bg-gray-50" id="container-sub-diskon-rows" onclick="hideSubDiskonSortMenu()"></div>
 
-            <!-- Tombol Bulat + Besar di Tengah Bawah (SS 1000924443) -->
+            <!-- Tombol Bulat + Besar di Tengah Bawah -->
             <div class="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none z-20">
-                <button onclick="openModalDiskonForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-teal-500 hover:bg-teal-600 text-gray-900 shadow-xl flex items-center justify-center text-2xl transition transform active:scale-90">
+                <button onclick="openModalDiskonForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl flex items-center justify-center text-2xl transition transform active:scale-95">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
 
-        <!-- === 3. HALAMAN DAFTAR PAJAK (SS 1000924447 & 1000924448) === -->
+        <!-- === 3. HALAMAN DAFTAR PAJAK === -->
         <div id="view-sub-pajak" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-20">
                 <button onclick="switchView('diskon')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
                 <h2 class="text-base font-bold text-emerald-700">Pajak</h2>
             </div>
 
-            <!-- Baris Filter Panah (2 Pilihan) & Kotak Cari Pajak -->
+            <!-- Baris Filter Panah & Kotak Cari Pajak -->
             <div class="p-3 bg-white border-b flex items-center space-x-2 relative z-20">
                 <div class="relative">
                     <button onclick="toggleSubPajakSortMenu()" class="text-emerald-700 text-xl px-2 py-1 focus:outline-none">
                         <i class="fa-solid fa-arrow-up-wide-short"></i>
                     </button>
-                    <!-- Dropdown 2 Pilihan: Nama & Pajak (SS 1000924448) -->
-                    <div id="dropdown-sub-pajak-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-2 hidden z-50 text-xs font-medium text-gray-900">
-                        <button onclick="applySubPajakSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Nama</button>
+                    <!-- Dropdown Pilihan Sortir -->
+                    <div id="dropdown-sub-pajak-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-1 hidden z-50 text-xs font-bold text-gray-900">
+                        <button onclick="applySubPajakSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Nama</button>
                         <button onclick="applySubPajakSort('rate')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Pajak</button>
                     </div>
                 </div>
 
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-700"><i class="fa-solid fa-search text-base"></i></span>
-                    <input type="text" id="input-search-sub-pajak" oninput="renderSubPajakList(this.value)" placeholder="Cari pajak" class="w-full pl-9 pr-4 py-2 border border-emerald-600 rounded-md text-xs text-gray-900 focus:outline-none">
+                    <input type="text" id="input-search-sub-pajak" oninput="renderSubPajakList(this.value)" placeholder="Cari pajak" class="w-full pl-9 pr-4 py-2 border border-emerald-600 rounded-full text-xs font-bold text-gray-900 focus:outline-none">
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto pb-24" onclick="hideSubPajakSortMenu()">
-                <!-- Kotak Abu-abu Pajak Default Diset (SS 1000924447) -->
+            <div class="flex-1 overflow-y-auto pb-24 bg-gray-50" onclick="hideSubPajakSortMenu()">
+                <!-- Kotak Pajak Default Diset -->
                 <div class="p-4">
-                    <div class="bg-slate-100/90 rounded-2xl p-4 space-y-1.5">
-                        <div class="flex justify-between items-center text-xs font-extrabold text-gray-900">
+                    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                        <div class="flex justify-between items-center text-xs font-extrabold text-gray-900 mb-2">
                             <span>Pajak Default diset</span>
-                            <span id="label-pajak-default-rate">0.0%</span>
+                            <span id="label-pajak-default-rate" class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded">0.0%</span>
                         </div>
                         <p class="text-xs text-gray-500 font-medium">
                             Atur pajak default? <span onclick="openPajakDefaultView()" class="text-emerald-600 font-bold cursor-pointer hover:underline">Klik Disini</span>
@@ -169,50 +118,48 @@
                 </div>
 
                 <!-- Daftar Item Pajak -->
-                <div id="container-sub-pajak-rows" class="divide-y divide-gray-200 border-t border-gray-100"></div>
+                <div id="container-sub-pajak-rows" class="divide-y divide-gray-100 border-t border-gray-100 bg-white"></div>
             </div>
 
             <!-- Tombol Bulat + Besar di Tengah Bawah -->
             <div class="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none z-20">
-                <button onclick="openModalPajakForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-teal-500 hover:bg-teal-600 text-gray-900 shadow-xl flex items-center justify-center text-2xl transition transform active:scale-90">
+                <button onclick="openModalPajakForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl flex items-center justify-center text-2xl transition transform active:scale-95">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
 
-        <!-- === 4. HALAMAN PAJAK DEFAULT (SS 1000924449) === -->
+        <!-- === 4. HALAMAN PAJAK DEFAULT === -->
         <div id="view-pajak-default" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-10">
                 <button onclick="closePajakDefaultView()" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
                 <h2 class="text-base font-bold text-emerald-700">Pajak Default</h2>
             </div>
 
-            <div class="flex-1 overflow-y-auto pb-28">
-                <!-- Banner Hijau Muda Bergelombang -->
-                <div class="bg-gradient-to-br from-emerald-50 via-teal-50/70 to-emerald-100/60 p-4 border-b border-emerald-100">
-                    <p class="text-xs text-gray-900 leading-relaxed font-medium">
+            <div class="flex-1 overflow-y-auto pb-28 bg-gray-50">
+                <div class="bg-emerald-50 p-4 border-b border-emerald-100">
+                    <p class="text-xs text-emerald-900 leading-relaxed font-semibold">
                         <strong class="font-extrabold">Pajak Default</strong> adalah biaya tambahan yang dikenakan ke pelanggan di luar harga produk / jasa dalam bentuk persentase.
                     </p>
                 </div>
 
                 <div class="p-4 space-y-4">
                     <!-- Toggle Switch Aktifkan Pajak Default -->
-                    <div class="flex justify-between items-center pt-1">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
                         <div class="flex items-center space-x-2">
                             <span class="text-xs font-extrabold text-gray-900">Aktifkan Pajak Default</span>
-                            <button onclick="alert('Jika diaktifkan, persentase Pajak Default akan otomatis diterapkan pada setiap transaksi kasir.')" type="button" class="w-5 h-5 rounded-full border-2 border-emerald-600 text-emerald-600 flex items-center justify-center text-[11px] font-bold">i</button>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="toggle-pajak-default-active" onchange="handleTogglePajakDefault(this.checked)" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600 shadow-inner"></div>
+                            <div class="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
 
                     <!-- Input Pajak Default (%) -->
                     <div>
-                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Pajak Default (%)</label>
-                        <input type="number" id="input-pajak-default-val" value="0" step="0.1" disabled class="w-full border border-gray-300 rounded-full p-3 px-4 text-sm font-semibold text-gray-500 bg-white focus:outline-none focus:border-emerald-600">
-                        <p id="helper-pajak-default-status" class="text-xs text-gray-500 mt-2">Pajak default tidak aktif. Nilai telah disetel ke 0.</p>
+                        <label class="block text-xs font-semibold text-gray-600 mb-1.5 pl-1">Pajak Default (%)</label>
+                        <input type="number" id="input-pajak-default-val" value="0" step="0.1" disabled class="w-full border border-gray-300 rounded-full p-3 px-4 text-sm font-bold text-gray-500 bg-white focus:outline-none focus:border-emerald-600 shadow-sm">
+                        <p id="helper-pajak-default-status" class="text-[11px] text-gray-500 mt-2 pl-1 font-semibold">Pajak default tidak aktif. Nilai telah disetel ke 0.</p>
                     </div>
                 </div>
             </div>
@@ -225,7 +172,7 @@
             </div>
         </div>
 
-        <!-- === 5. HALAMAN DAFTAR BIAYA (SS 1000924452) === -->
+        <!-- === 5. HALAMAN DAFTAR BIAYA === -->
         <div id="view-sub-biaya" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-20">
                 <button onclick="switchView('diskon')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
@@ -238,24 +185,24 @@
                     <button onclick="toggleSubBiayaSortMenu()" class="text-emerald-700 text-xl px-2 py-1 focus:outline-none">
                         <i class="fa-solid fa-arrow-up-wide-short"></i>
                     </button>
-                    <div id="dropdown-sub-biaya-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-2 hidden z-50 text-xs font-medium text-gray-900">
-                        <button onclick="applySubBiayaSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Nama</button>
+                    <div id="dropdown-sub-biaya-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-1 hidden z-50 text-xs font-bold text-gray-900">
+                        <button onclick="applySubBiayaSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Nama</button>
                         <button onclick="applySubBiayaSort('amount')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Biaya</button>
                     </div>
                 </div>
 
                 <div class="relative flex-1">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-emerald-700"><i class="fa-solid fa-search text-base"></i></span>
-                    <input type="text" id="input-search-sub-biaya" oninput="renderSubBiayaList(this.value)" placeholder="Cari biaya" class="w-full pl-9 pr-4 py-2 border border-emerald-600 rounded-md text-xs text-gray-900 focus:outline-none">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-emerald-700"><i class="fa-solid fa-search text-sm"></i></span>
+                    <input type="text" id="input-search-sub-biaya" oninput="renderSubBiayaList(this.value)" placeholder="Cari biaya" class="w-full pl-10 pr-4 py-2 border border-emerald-600 rounded-full text-xs font-bold text-gray-900 focus:outline-none">
                 </div>
             </div>
 
             <!-- Daftar Item Biaya -->
-            <div class="flex-1 overflow-y-auto divide-y divide-gray-200 pb-24" id="container-sub-biaya-rows" onclick="hideSubBiayaSortMenu()"></div>
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-100 pb-24 bg-gray-50" id="container-sub-biaya-rows" onclick="hideSubBiayaSortMenu()"></div>
 
             <!-- Tombol Bulat + Besar di Tengah Bawah -->
             <div class="absolute bottom-6 left-0 right-0 flex justify-center pointer-events-none z-20">
-                <button onclick="openModalBiayaForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-teal-500 hover:bg-teal-600 text-gray-900 shadow-xl flex items-center justify-center text-2xl transition transform active:scale-90">
+                <button onclick="openModalBiayaForm(-1)" type="button" class="pointer-events-auto w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl flex items-center justify-center text-2xl transition transform active:scale-95">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
@@ -264,79 +211,77 @@
 
     // 2. SUNTIKKAN HTML MODALS (TAMBAH/EDIT DISKON, PAJAK, BIAYA) KE DALAM #modals-container
     const modalsHTML = `
-        <!-- === POPUP TAMBAH / EDIT DISKON (SS 1000924444 & 1000924446) === -->
+        <!-- === POPUP TAMBAH / EDIT DISKON === -->
         <div id="modal-form-sub-diskon" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
-                <h3 class="font-extrabold text-xs uppercase tracking-wider text-gray-900 text-center pb-3 border-b" id="title-modal-sub-diskon">TAMBAH DISKON</h3>
+            <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
+                <h3 class="font-extrabold text-xs uppercase tracking-wider text-gray-900 text-center pb-3 border-b border-gray-100" id="title-modal-sub-diskon">TAMBAH DISKON</h3>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nama Diskon</label>
-                    <input type="text" id="input-modal-diskon-name" placeholder="Nama Diskon" class="w-full border border-gray-300 rounded-full p-3 px-4 text-xs font-semibold text-gray-900 focus:outline-none focus:border-emerald-600">
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Nama Diskon</label>
+                    <input type="text" id="input-modal-diskon-name" placeholder="Contoh: Diskon Pelajar" class="w-full border border-emerald-600 rounded-full p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Jumlah Diskon</label>
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Jumlah Diskon</label>
                     <div class="flex items-center space-x-3">
-                        <input type="number" id="input-modal-diskon-val" placeholder="Jumlah" step="0.01" class="flex-1 border border-gray-300 rounded-full p-3 px-4 text-xs font-semibold text-gray-900 focus:outline-none focus:border-emerald-600">
-                        <div class="flex rounded-md overflow-hidden border border-gray-200 flex-shrink-0">
-                            <button type="button" id="btn-modal-diskon-pct" onclick="setModalDiskonUnit('pct')" class="w-12 py-2.5 text-xs font-bold bg-emerald-600 text-white transition">%</button>
-                            <button type="button" id="btn-modal-diskon-rp" onclick="setModalDiskonUnit('rp')" class="w-12 py-2.5 text-xs font-bold bg-gray-200 text-white transition">Rp</button>
+                        <input type="number" id="input-modal-diskon-val" placeholder="0" step="0.01" class="flex-1 border border-emerald-600 rounded-full p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none shadow-sm">
+                        <div class="flex rounded-full overflow-hidden border border-emerald-600 flex-shrink-0 shadow-sm">
+                            <button type="button" id="btn-modal-diskon-pct" onclick="setModalDiskonUnit('pct')" class="w-12 py-3 text-xs font-extrabold bg-emerald-600 text-white transition">%</button>
+                            <button type="button" id="btn-modal-diskon-rp" onclick="setModalDiskonUnit('rp')" class="w-12 py-3 text-xs font-extrabold bg-white text-emerald-600 transition">Rp</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="closeModalDiskonForm()" type="button" class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition">BATAL</button>
-                    <button onclick="saveModalDiskonForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition">OK</button>
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 mt-2">
+                    <button onclick="closeModalDiskonForm()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition tracking-wider">BATAL</button>
+                    <button onclick="saveModalDiskonForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition tracking-wider">SIMPAN</button>
                 </div>
             </div>
         </div>
 
-        <!-- === POPUP TAMBAH / EDIT PAJAK (SS 1000924450 & 1000924451) === -->
+        <!-- === POPUP TAMBAH / EDIT PAJAK === -->
         <div id="modal-form-sub-pajak" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
-                <h3 class="font-extrabold text-xs tracking-wider text-gray-900 text-center pb-3 border-b" id="title-modal-sub-pajak">Tambah Pajak</h3>
+            <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
+                <h3 class="font-extrabold text-xs tracking-wider text-gray-900 text-center pb-3 border-b border-gray-100 uppercase" id="title-modal-sub-pajak">Tambah Pajak</h3>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nama Pajak</label>
-                    <input type="text" id="input-modal-pajak-name" placeholder="Nama Pajak" class="w-full border border-gray-300 rounded-full p-3 px-4 text-xs font-semibold text-gray-900 focus:outline-none focus:border-emerald-600">
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Nama Pajak</label>
+                    <input type="text" id="input-modal-pajak-name" placeholder="Contoh: PPN" class="w-full border border-emerald-600 rounded-full p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Pajak (%)</label>
-                    <input type="number" id="input-modal-pajak-rate" placeholder="Jumlah (%)" step="0.1" class="w-full border border-gray-300 rounded-full p-3 px-4 text-xs font-semibold text-gray-900 focus:outline-none focus:border-emerald-600">
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Pajak (%)</label>
+                    <input type="number" id="input-modal-pajak-rate" placeholder="0.0" step="0.1" class="w-full border border-emerald-600 rounded-full p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none shadow-sm">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="closeModalPajakForm()" type="button" class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition">BATAL</button>
-                    <button onclick="saveModalPajakForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition">OK</button>
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 mt-2">
+                    <button onclick="closeModalPajakForm()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition tracking-wider">BATAL</button>
+                    <button onclick="saveModalPajakForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition tracking-wider">SIMPAN</button>
                 </div>
             </div>
         </div>
 
-        <!-- === POPUP TAMBAH / EDIT BIAYA (SS 1000924453 & 1000924454) === -->
+        <!-- === POPUP TAMBAH / EDIT BIAYA === -->
         <div id="modal-form-sub-biaya" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
-                <h3 class="font-extrabold text-xs tracking-wider text-gray-900 text-center pb-3 border-b" id="title-modal-sub-biaya">Tambah Biaya</h3>
+            <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl p-6 space-y-4">
+                <h3 class="font-extrabold text-xs tracking-wider text-gray-900 text-center pb-3 border-b border-gray-100 uppercase" id="title-modal-sub-biaya">Tambah Biaya</h3>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nama Biaya</label>
-                    <input type="text" id="input-modal-biaya-name" placeholder="Nama Biaya" class="w-full border border-gray-300 rounded-md p-3 px-3.5 text-xs font-semibold text-gray-900 focus:outline-none focus:border-emerald-600">
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Nama Biaya</label>
+                    <input type="text" id="input-modal-biaya-name" placeholder="Contoh: Ongkir" class="w-full border border-emerald-600 rounded-full p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Nominal</label>
-                    <div class="flex rounded-md overflow-hidden border border-emerald-600">
-                        <input type="number" id="input-modal-biaya-nominal" placeholder="Nominal" step="0.01" class="flex-1 p-3 px-3.5 text-xs font-semibold text-gray-900 focus:outline-none">
-                        <div class="bg-emerald-700 text-white font-bold text-xs px-4 flex items-center justify-center">
-                            Rp
-                        </div>
+                    <label class="block text-[11px] font-semibold text-gray-500 mb-1.5 pl-1">Nominal</label>
+                    <div class="flex rounded-full overflow-hidden border border-emerald-600 shadow-sm focus-within:ring-1 focus-within:ring-emerald-500">
+                        <div class="bg-emerald-50 text-emerald-700 font-bold text-xs px-4 flex items-center justify-center border-r border-emerald-200">Rp</div>
+                        <input type="number" id="input-modal-biaya-nominal" placeholder="0" step="0.01" class="flex-1 p-3 px-4 text-xs font-bold text-gray-900 focus:outline-none">
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <button onclick="closeModalBiayaForm()" type="button" class="bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition">BATAL</button>
-                    <button onclick="saveModalBiayaForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition">OK</button>
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-gray-100 mt-2">
+                    <button onclick="closeModalBiayaForm()" type="button" class="bg-gray-100 hover:bg-gray-200 text-gray-900 py-3.5 rounded-full font-extrabold text-xs uppercase transition tracking-wider">BATAL</button>
+                    <button onclick="saveModalBiayaForm()" type="button" class="bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-full font-extrabold text-xs uppercase shadow-md transition tracking-wider">SIMPAN</button>
                 </div>
             </div>
         </div>
@@ -349,21 +294,8 @@
     const mdContainer = document.getElementById('modals-container');
     if (mdContainer) mdContainer.insertAdjacentHTML('beforeend', modalsHTML);
 
-    // Tambahkan Pintasan Menu MANAJEMEN & Marketing ke Sidebar secara Otomatis
-    const navDiskonEl = document.getElementById('nav-diskon');
-    if (navDiskonEl && !document.getElementById('nav-marketing')) {
-        navDiskonEl.insertAdjacentHTML('afterend', `
-            <a href="#" onclick="if(window.openMarketingMainView) window.openMarketingMainView(); else switchView('manajemen-hub');" id="nav-marketing" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700 transition">
-                <i class="fa-solid fa-star w-5 text-center"></i><span>Marketing</span>
-            </a>
-            <a href="#" onclick="switchView('manajemen-hub')" id="nav-manajemen-hub" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-emerald-700 font-semibold transition">
-                <i class="fa-solid fa-grip w-5 text-center"></i><span>Semua Menu Manajemen</span>
-            </a>
-        `);
-    }
-
     // ========================================================================
-    // 3. DATA AWAL DISKON, PAJAK, DAN BIAYA SESUAI SCREENSHOT
+    // 3. DATA AWAL DISKON, PAJAK, DAN BIAYA 
     // ========================================================================
     const defaultDiscounts = [
         { id: 'd_1', name: 'set', amount: 500, unit: 'rp' },
@@ -396,17 +328,6 @@
     let editingPajakIdx = -1;
     let editingBiayaIdx = -1;
 
-    // Hook pada switchView('diskon') dan switchView('manajemen-hub') agar header utama disembunyikan
-    const prevSwitchView = window.switchView;
-    window.switchView = function(viewName) {
-        if (typeof prevSwitchView === 'function') prevSwitchView(viewName);
-        if (viewName === 'diskon' || viewName === 'manajemen-hub') {
-            const mainHeader = document.getElementById('main-header');
-            if (mainHeader) mainHeader.classList.add('hidden');
-        }
-        syncPosDiscountSelect();
-    };
-
     function syncPosDiscountSelect() {
         const sel = document.getElementById('pos-discount');
         if (!sel) return;
@@ -419,7 +340,7 @@
     }
 
     // ========================================================================
-    // 4. LOGIKA SUB-MENU 1: DISKON (SS 1000924443 - 1000924446)
+    // 4. LOGIKA SUB-MENU 1: DISKON
     // ========================================================================
     window.openSubDiskonView = () => {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
@@ -456,7 +377,7 @@
         });
 
         if (list.length === 0) {
-            container.innerHTML = `<div class="py-12 text-center text-xs text-gray-400 font-semibold">Belum ada data diskon.</div>`;
+            container.innerHTML = `<div class="py-12 text-center text-xs text-gray-400 font-bold bg-white m-4 rounded-xl border border-gray-100">Belum ada data diskon.</div>`;
             return;
         }
 
@@ -466,18 +387,14 @@
                 : `Rp ${Number(d.amount).toLocaleString('id-ID')}`;
 
             container.innerHTML += `
-                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-gray-50 transition">
+                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-emerald-50 transition border-b border-gray-50">
                     <div>
-                        <h4 class="font-bold text-xs text-gray-900">${d.name}</h4>
-                        <p class="text-[11px] text-gray-600 font-medium mt-0.5">${subText}</p>
+                        <h4 class="font-extrabold text-sm text-gray-900">${d.name}</h4>
+                        <p class="text-[11px] text-emerald-600 font-bold mt-0.5">${subText}</p>
                     </div>
-                    <div class="flex items-center space-x-5">
-                        <button onclick="openModalDiskonForm(${d.origIdx})" type="button" class="text-emerald-600 hover:text-emerald-800 text-xl p-1 transition" title="Edit Diskon">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deleteSubDiskonItem(${d.origIdx})" type="button" class="text-red-500 hover:text-red-700 text-xl p-1 transition" title="Hapus Diskon">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
+                    <div class="flex items-center space-x-3 text-lg">
+                        <button onclick="openModalDiskonForm(${d.origIdx})" type="button" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center transition hover:bg-emerald-100" title="Edit Diskon"><i class="fa-solid fa-pen text-sm"></i></button>
+                        <button onclick="deleteSubDiskonItem(${d.origIdx})" type="button" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center transition hover:bg-red-100" title="Hapus Diskon"><i class="fa-regular fa-trash-can text-sm"></i></button>
                     </div>
                 </div>
             `;
@@ -489,11 +406,11 @@
         const btnPct = document.getElementById('btn-modal-diskon-pct');
         const btnRp = document.getElementById('btn-modal-diskon-rp');
         if (unit === 'pct') {
-            btnPct.className = "w-12 py-2.5 text-xs font-bold bg-emerald-600 text-white transition";
-            btnRp.className = "w-12 py-2.5 text-xs font-bold bg-gray-200 text-white transition";
+            btnPct.className = "w-12 py-3 text-xs font-extrabold bg-emerald-600 text-white transition";
+            btnRp.className = "w-12 py-3 text-xs font-extrabold bg-white text-emerald-600 transition";
         } else {
-            btnRp.className = "w-12 py-2.5 text-xs font-bold bg-emerald-600 text-white transition";
-            btnPct.className = "w-12 py-2.5 text-xs font-bold bg-gray-200 text-white transition";
+            btnRp.className = "w-12 py-3 text-xs font-extrabold bg-emerald-600 text-white transition";
+            btnPct.className = "w-12 py-3 text-xs font-extrabold bg-white text-emerald-600 transition";
         }
     };
 
@@ -506,7 +423,7 @@
 
         if (idx >= 0 && window.masterDiscounts[idx]) {
             const item = window.masterDiscounts[idx];
-            titleEl.innerText = "EDIT";
+            titleEl.innerText = "EDIT DISKON";
             nameInput.value = item.name;
             valInput.value = Number(item.amount).toFixed(2);
             window.setModalDiskonUnit(item.unit || 'rp');
@@ -562,7 +479,7 @@
     };
 
     // ========================================================================
-    // 5. LOGIKA SUB-MENU 2: PAJAK & PAJAK DEFAULT (SS 1000924447 - 1000924451)
+    // 5. LOGIKA SUB-MENU 2: PAJAK & PAJAK DEFAULT
     // ========================================================================
     window.openSubPajakView = () => {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
@@ -608,20 +525,21 @@
             return a.name.localeCompare(b.name);
         });
 
+        if (list.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center text-xs font-bold text-gray-400">Tidak ada data pajak.</div>`;
+            return;
+        }
+
         list.forEach(t => {
             container.innerHTML += `
-                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-gray-50 transition">
+                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-emerald-50 transition border-b border-gray-50">
                     <div>
-                        <h4 class="font-bold text-xs text-gray-900">${t.name}</h4>
-                        <p class="text-[11px] text-gray-600 font-medium mt-0.5">${t.rate} %</p>
+                        <h4 class="font-extrabold text-sm text-gray-900">${t.name}</h4>
+                        <p class="text-[11px] text-emerald-600 font-bold mt-0.5">${t.rate} %</p>
                     </div>
-                    <div class="flex items-center space-x-5">
-                        <button onclick="openModalPajakForm(${t.origIdx})" type="button" class="text-emerald-600 hover:text-emerald-800 text-xl p-1 transition" title="Edit Pajak">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deleteSubPajakItem(${t.origIdx})" type="button" class="text-red-500 hover:text-red-700 text-xl p-1 transition" title="Hapus Pajak">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
+                    <div class="flex items-center space-x-3 text-lg">
+                        <button onclick="openModalPajakForm(${t.origIdx})" type="button" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center transition hover:bg-emerald-100" title="Edit Pajak"><i class="fa-solid fa-pen text-sm"></i></button>
+                        <button onclick="deleteSubPajakItem(${t.origIdx})" type="button" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center transition hover:bg-red-100" title="Hapus Pajak"><i class="fa-regular fa-trash-can text-sm"></i></button>
                     </div>
                 </div>
             `;
@@ -637,11 +555,11 @@
 
         if (idx >= 0 && window.masterTaxes[idx]) {
             const item = window.masterTaxes[idx];
-            titleEl.innerText = "EDIT";
+            titleEl.innerText = "EDIT PAJAK";
             nameInput.value = item.name;
             rateInput.value = Number(item.rate).toFixed(1);
         } else {
-            titleEl.innerText = "Tambah Pajak";
+            titleEl.innerText = "TAMBAH PAJAK";
             nameInput.value = '';
             rateInput.value = '';
         }
@@ -687,7 +605,7 @@
         }
     };
 
-    // --- HALAMAN PAJAK DEFAULT (SS 1000924449) ---
+    // --- HALAMAN PAJAK DEFAULT ---
     window.openPajakDefaultView = () => {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-pajak-default').classList.remove('hidden');
@@ -712,13 +630,17 @@
 
         if (checked) {
             input.disabled = false;
-            input.className = "w-full border border-emerald-600 rounded-full p-3 px-4 text-sm font-bold text-gray-900 bg-white focus:outline-none";
+            input.className = "w-full border border-emerald-600 rounded-full p-3 px-4 text-sm font-bold text-gray-900 bg-white focus:outline-none shadow-sm";
             helper.innerText = "Pajak default aktif. Akan diterapkan otomatis pada transaksi.";
+            helper.classList.remove('text-gray-500');
+            helper.classList.add('text-emerald-600');
         } else {
             input.disabled = true;
             input.value = '0';
-            input.className = "w-full border border-gray-300 rounded-full p-3 px-4 text-sm font-semibold text-gray-400 bg-white focus:outline-none";
+            input.className = "w-full border border-gray-300 rounded-full p-3 px-4 text-sm font-bold text-gray-400 bg-gray-50 focus:outline-none shadow-sm";
             helper.innerText = "Pajak default tidak aktif. Nilai telah disetel ke 0.";
+            helper.classList.add('text-gray-500');
+            helper.classList.remove('text-emerald-600');
         }
     };
 
@@ -729,16 +651,12 @@
         window.pajakDefaultConfig = { active, rate };
         localStorage.setItem('pos_pajak_default', JSON.stringify(window.pajakDefaultConfig));
 
-        // Sinkronkan ke input pajak kasir jika ada
-        const posTaxInput = document.getElementById('checkout-tax');
-        if (posTaxInput) posTaxInput.value = rate;
-
         alert("Pengaturan Pajak Default berhasil disimpan!");
         window.closePajakDefaultView();
     };
 
     // ========================================================================
-    // 6. LOGIKA SUB-MENU 3: BIAYA (SS 1000924452 - 1000924454)
+    // 6. LOGIKA SUB-MENU 3: BIAYA
     // ========================================================================
     window.openSubBiayaView = () => {
         document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
@@ -774,20 +692,21 @@
             return a.name.localeCompare(b.name);
         });
 
+        if (list.length === 0) {
+            container.innerHTML = `<div class="p-8 text-center text-gray-400 text-xs font-bold">Tidak ada data biaya tambahan.</div>`;
+            return;
+        }
+
         list.forEach(f => {
             container.innerHTML += `
-                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-gray-50 transition">
+                <div class="px-4 py-3.5 bg-white flex items-center justify-between hover:bg-emerald-50 transition border-b border-gray-50">
                     <div>
-                        <h4 class="font-bold text-xs text-gray-900">${f.name}</h4>
-                        <p class="text-[11px] text-gray-600 font-medium mt-0.5">Rp ${Number(f.amount).toLocaleString('id-ID')}</p>
+                        <h4 class="font-extrabold text-sm text-gray-900">${f.name}</h4>
+                        <p class="text-[11px] text-emerald-600 font-bold mt-0.5">Rp ${Number(f.amount).toLocaleString('id-ID')}</p>
                     </div>
-                    <div class="flex items-center space-x-5">
-                        <button onclick="openModalBiayaForm(${f.origIdx})" type="button" class="text-emerald-600 hover:text-emerald-800 text-xl p-1 transition" title="Edit Biaya">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button onclick="deleteSubBiayaItem(${f.origIdx})" type="button" class="text-red-500 hover:text-red-700 text-xl p-1 transition" title="Hapus Biaya">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
+                    <div class="flex items-center space-x-3 text-lg">
+                        <button onclick="openModalBiayaForm(${f.origIdx})" type="button" class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center transition hover:bg-emerald-100" title="Edit Biaya"><i class="fa-solid fa-pen text-sm"></i></button>
+                        <button onclick="deleteSubBiayaItem(${f.origIdx})" type="button" class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center transition hover:bg-red-100" title="Hapus Biaya"><i class="fa-regular fa-trash-can text-sm"></i></button>
                     </div>
                 </div>
             `;
@@ -803,11 +722,11 @@
 
         if (idx >= 0 && window.masterFees[idx]) {
             const item = window.masterFees[idx];
-            titleEl.innerText = "Edit Biaya";
+            titleEl.innerText = "EDIT BIAYA";
             nameInput.value = item.name;
             nomInput.value = Number(item.amount).toFixed(2);
         } else {
-            titleEl.innerText = "Tambah Biaya";
+            titleEl.innerText = "TAMBAH BIAYA";
             nameInput.value = '';
             nomInput.value = '';
         }
@@ -853,6 +772,5 @@
         }
     };
 
-    // Sinkronkan dropdown diskon POS saat pertama kali dimuat
     setTimeout(syncPosDiscountSelect, 400);
 })();
