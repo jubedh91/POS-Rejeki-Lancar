@@ -32,21 +32,36 @@
                 <i class="fa-solid fa-lock"></i>
             </div>
             <h2 class="text-2xl font-black text-gray-800 mb-1" id="login-toko-title">REJEKI LANCAR</h2>
-            <p class="text-sm text-gray-500 mb-8">Sistem Kasir Pintar (Klasik)</p>
-            <label class="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest">Masukkan PIN Akses</label>
-            <input type="password" id="login-pin" class="w-full border-2 border-emerald-100 p-4 rounded-xl text-center text-3xl tracking-[0.5em] font-bold focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 mb-6 transition" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-            <button onclick="verifyLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95">MASUK</button>
-            <div class="flex justify-between items-center mt-6 text-xs font-semibold">
-                <button onclick="setRoleAndLogin('Owner')" class="text-emerald-600 hover:underline">Masuk: Owner</button>
-                <button onclick="setRoleAndLogin('Kasir')" class="text-gray-500 hover:underline">Masuk: Kasir</button>
+            <p class="text-sm text-gray-500 mb-6">Sistem Kasir Pintar (Klasik)</p>
+            
+            <div class="space-y-4 mb-6 text-left">
+                <!-- Dropdown Pilih Role -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-widest text-center">Pilih Akses</label>
+                    <div class="relative">
+                        <select id="login-role" class="w-full border-2 border-emerald-100 p-3.5 rounded-xl text-sm font-bold text-gray-800 bg-white appearance-none focus:outline-none focus:border-emerald-500">
+                            <option value="Owner">Owner</option>
+                            <option value="Kasir">Kasir</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-4 text-gray-400 pointer-events-none"></i>
+                    </div>
+                </div>
+                
+                <!-- Input PIN -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-widest text-center">Masukkan PIN Akses</label>
+                    <input type="password" id="login-pin" class="w-full border-2 border-emerald-100 p-3.5 rounded-xl text-center text-2xl tracking-[0.5em] font-bold focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 transition" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+                </div>
             </div>
+
+            <button onclick="verifyLogin()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95">MASUK</button>
         </div>
     </div>
 
     <!-- === CONTAINER UTAMA APLIKASI === -->
     <div id="app" class="flex flex-col h-screen overflow-hidden">
         
-        <!-- HEADER UTAMA MANAJEMEN HUB (Tampil Default) -->
+        <!-- HEADER UTAMA MANAJEMEN HUB (Tampil Default, Sembunyi Saat Masuk Modul) -->
         <header id="main-header" class="bg-white border-b border-gray-100 shadow-sm z-10 flex items-center justify-between px-4 py-3.5">
             <button onclick="toggleSidebar()" class="text-emerald-700 text-xl focus:outline-none transition">
                 <i class="fa-solid fa-bars"></i>
@@ -55,7 +70,7 @@
             <div class="w-6"></div> <!-- Spacer untuk balance -->
         </header>
 
-        <!-- AREA KERJA UTAMA & SIDEBAR (DRAWER KIRI KOSONG UTK SETTING PROFIL NANTINYA) -->
+        <!-- AREA KERJA UTAMA & SIDEBAR -->
         <div class="flex flex-1 overflow-hidden relative" id="workspace-container">
             
             <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity"></div>
@@ -177,19 +192,30 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // Ekspos Firebase & State Global
         window.db = db;
         window.fb = { collection, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp };
         window.products = [];
+        window.customersList = [];
+        window.suppliersList = [];
         window.activeKasir = "Owner";
         window.masterCategories = JSON.parse(localStorage.getItem('pos_categories') || '["Umum", "atk", "bahan makanan", "baskom", "cup gelas", "diskon", "foam", "hari ultah", "jet roll", "kardus", "karet tali", "karung", "kertas bungkus", "klip", "kresek", "wrapping"]');
         window.masterCustomerTypes = ["gold", "silver", "bronze", "retailer", "reseller"];
 
+        // Format Tanggal Global Standard Aplikasi (YYYY/MM/DD HH:MM:SS)
         window.getFormattedCurrentDateTime = function() {
             const d = new Date();
             const pad = (n) => n.toString().padStart(2, '0');
             return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
         };
 
+        // Format Tanggal untuk Input Type datetime-local (YYYY-MM-DDTHH:MM)
+        window.getDateTimeLocalFormat = function(d = new Date()) {
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        };
+
+        // --- SISTEM LOGIN MULTI ROLE DENGAN PIN ---
         window.setRoleAndLogin = (roleName) => {
             window.activeKasir = roleName;
             document.getElementById('sidebar-user-role').innerText = roleName;
@@ -199,18 +225,25 @@
         };
 
         window.verifyLogin = () => {
+            const role = document.getElementById('login-role').value;
             const pin = document.getElementById('login-pin').value;
-            if (pin === '2222') {
+
+            if (role === 'Owner' && pin === '5461') {
+                window.setRoleAndLogin('Owner');
+            } else if (role === 'Kasir' && pin === '1234') {
                 window.setRoleAndLogin('Kasir');
             } else {
-                window.setRoleAndLogin('Owner');
+                alert(`PIN yang dimasukkan salah untuk hak akses ${role}!`);
+                document.getElementById('login-pin').value = '';
             }
         };
 
+        // Kunci Tampilan Berdasarkan Hak Akses
         window.applyRolePermissions = function() {
             const isOwner = window.activeKasir.toLowerCase().includes('owner') || window.activeKasir.toLowerCase().includes('admin');
             const buyPriceGrp = document.getElementById('group-buyprice-input');
             const btnAddProd = document.getElementById('container-btn-add-product');
+            
             if (isOwner) {
                 if (buyPriceGrp) buyPriceGrp.classList.remove('hidden');
                 if (btnAddProd) btnAddProd.classList.remove('hidden');
@@ -220,20 +253,25 @@
             }
         };
 
+        // --- ROUTING ANTI DOUBLE HEADER ---
         window.switchView = function(viewName) {
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            
             const mainHeader = document.getElementById('main-header');
             
-            // Logika spesifik tampilan yang memerlukan header disembunyikan
-            if (['pos', 'pembelian', 'products', 'kategori', 'manajemen-stok', 'marketing', 'opname', 'pelanggan', 'supplier', 'hutang', 'piutang', 'diskon', 'pajak', 'biaya'].includes(viewName)) {
-                if(mainHeader) mainHeader.classList.add('hidden');
-            } else {
+            // Header utama "Manajemen" HANYA muncul jika di halaman "manajemen-hub"
+            if (viewName === 'manajemen-hub') {
                 if(mainHeader) mainHeader.classList.remove('hidden');
+            } else {
+                if(mainHeader) mainHeader.classList.add('hidden');
             }
 
             const targetView = document.getElementById(`view-${viewName}`) || document.getElementById(viewName);
-            if (targetView) targetView.classList.remove('hidden');
+            if (targetView) {
+                targetView.classList.remove('hidden');
+            }
 
+            // Tutup Sidebar jika sedang diakses dari mobile
             if (window.innerWidth < 768 && !document.getElementById('sidebar').classList.contains('-translate-x-full')) {
                 window.toggleSidebar();
             }
@@ -246,9 +284,13 @@
 
         window.loadInitialData = async function() {
             try {
-                const qSnap = await getDocs(collection(db, "products"));
-                window.products = qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-                
+                // Di mode demo/offline, jika kosong isikan dummy
+                if(window.products.length === 0) {
+                    window.products = [
+                        { id: 'p1', name: "Alta Wrap 30x30 box", sku: "115", price: 16000, buyPrice: 11000, stock: 57, category: "atk", unit: "box", type: "Default" },
+                        { id: 'p2', name: "Sndk Bebek Hitam 120", sku: "176", price: 5000, buyPrice: 3500, stock: 5, category: "Umum", unit: "pak", type: "Default" }
+                    ];
+                }
                 const loginSync = document.getElementById('login-sync-status');
                 if (loginSync) loginSync.innerText = "Terhubung";
             } catch (error) {
@@ -257,9 +299,8 @@
         };
 
         window.initAppSettings = () => {
-            window.applyRolePermissions();
             window.loadInitialData();
-            window.switchView('manajemen-hub');
+            // Tidak memanggil switchView di sini, biarkan tertahan di layar login.
         };
     </script>
 
