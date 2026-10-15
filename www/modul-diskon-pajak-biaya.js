@@ -1,12 +1,12 @@
 // ============================================================================
 // MODUL 10: DISKON, PAJAK, PAJAK DEFAULT, BIAYA, & HUB MANAJEMEN
-// (FIX: UI KLASIK SESUAI SS 1000926455)
+// (DESAIN KASIR PINTAR KLASIK & FIX NAVIGATION)
 // ============================================================================
 
 (function() {
     // 1. SUNTIKKAN HTML VIEWS KE DALAM #workspace-container
     const viewsHTML = `
-        <!-- === 1. HALAMAN UTAMA DISKON, PAJAK, DAN BIAYA (SS 1000926455) === -->
+        <!-- === 1. HALAMAN UTAMA DISKON, PAJAK, DAN BIAYA === -->
         <div id="view-diskon" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative">
             <div class="px-4 py-3 bg-white border-b flex items-center space-x-3 shadow-sm z-10">
                 <button onclick="switchView('manajemen-hub')" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
@@ -47,13 +47,13 @@
                 <h2 class="text-base font-bold text-emerald-700">Diskon</h2>
             </div>
 
-            <!-- Baris Filter Panah (2 Pilihan) & Kotak Cari Diskon -->
+            <!-- Baris Filter Panah & Kotak Cari Diskon -->
             <div class="p-3 bg-white border-b flex items-center space-x-2 relative z-20">
                 <div class="relative">
                     <button onclick="toggleSubDiskonSortMenu()" class="text-emerald-700 text-xl px-2 py-1 focus:outline-none">
                         <i class="fa-solid fa-arrow-up-wide-short"></i>
                     </button>
-                    <!-- Dropdown 2 Pilihan -->
+                    <!-- Dropdown Pilihan -->
                     <div id="dropdown-sub-diskon-sort" class="absolute left-0 top-10 w-52 bg-white rounded-md shadow-2xl border border-gray-200 py-1 hidden z-50 text-xs font-bold text-gray-900">
                         <button onclick="applySubDiskonSort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Nama</button>
                         <button onclick="applySubDiskonSort('amount')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Diskon</button>
