@@ -1,17 +1,16 @@
 // ============================================================================
-// MODUL 13: PEMBELIAN DARI SUPPLIER - KLASIK UI & FIX LOGIC
+// MODUL 13: PEMBELIAN DARI SUPPLIER LENGKAP (KLASIK & FIX LOGIC STOK)
 // ============================================================================
 
 (function() {
     // 1. SUNTIKKAN HTML VIEWS KE DALAM #workspace-container
     const viewsHTML = `
-        <!-- === 1. HALAMAN UTAMA PEMBELIAN (KERANJANG) KLASIK === -->
-        <div id="view-pembelian" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-gray-50 hidden relative z-20">
-            <!-- Header Solid Hijau Klasik -->
-            <div class="px-4 py-3 bg-emerald-600 text-white flex items-center justify-between shadow-sm z-20">
-                <div class="flex items-center space-x-4">
+        <!-- === 1. HALAMAN UTAMA PEMBELIAN (KERANJANG) === -->
+        <div id="view-pembelian" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative z-20">
+            <div class="px-4 py-3 bg-emerald-600 text-white border-b flex items-center justify-between shadow-sm z-20">
+                <div class="flex items-center space-x-3">
                     <button onclick="switchView('manajemen-hub')" class="text-white text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
-                    <h2 class="text-base font-bold tracking-wide">Pembelian</h2>
+                    <h2 class="text-base font-bold text-white">Pembelian</h2>
                 </div>
                 <div class="flex items-center space-x-3">
                     <button onclick="pembelianOpenDataDraft()" class="bg-amber-400 hover:bg-amber-500 text-white font-bold text-[11px] px-3 py-1.5 rounded-full flex items-center space-x-1.5 shadow-sm transition">
@@ -19,33 +18,31 @@
                     </button>
                     <div class="relative">
                         <button onclick="document.getElementById('dropdown-pembelian-main').classList.toggle('hidden')" class="text-white text-xl p-1 focus:outline-none"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                        <div id="dropdown-pembelian-main" class="absolute right-0 top-10 w-52 bg-white rounded-md shadow-2xl py-1 hidden z-50 border border-gray-100 text-gray-800">
-                            <button onclick="pembelianBatalkan()" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-emerald-50 transition block border-b border-gray-100">Batalkan Pembelian</button>
-                            <button onclick="pembelianBukaPengaturan()" class="w-full text-left px-4 py-3 text-xs font-bold hover:bg-emerald-50 transition block border-b border-gray-100">Pengaturan Pembelian</button>
+                        <div id="dropdown-pembelian-main" class="absolute right-0 top-10 w-48 bg-white rounded-md shadow-2xl py-1 hidden z-50 border border-gray-100 text-gray-800">
+                            <button onclick="pembelianBatalkan()" class="w-full text-left px-4 py-3 text-xs font-semibold hover:bg-emerald-50 transition block">Batalkan Pembelian</button>
+                            <button onclick="pembelianBukaPengaturan()" class="w-full text-left px-4 py-3 text-xs font-semibold hover:bg-emerald-50 transition block">Pengaturan Pembelian</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bilah Kontrol Corong Notifikasi, Filter Sortir, Pencarian, & Barcode -->
-            <div class="p-3 bg-white border-b flex items-center space-x-2 relative z-10 shadow-xs">
+            <div class="p-3 bg-white border-b flex items-center space-x-2 relative z-20 shadow-xs">
                 <button onclick="document.getElementById('modal-pembelian-notif-stok').classList.remove('hidden')" class="text-emerald-700 text-xl px-2 py-1"><i class="fa-solid fa-filter"></i></button>
                 <div class="relative">
                     <button onclick="document.getElementById('dropdown-pembelian-sort').classList.toggle('hidden')" class="text-emerald-700 text-xl px-2 py-1"><i class="fa-solid fa-arrow-up-wide-short"></i></button>
-                    <div id="dropdown-pembelian-sort" class="absolute left-0 top-10 w-44 bg-white rounded-md shadow-2xl py-1 hidden z-50 text-xs font-bold text-gray-900 border border-gray-100">
-                        <button onclick="pembelianApplySort('name')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Barang</button>
-                        <button onclick="pembelianApplySort('sku')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block border-b border-gray-50">Kode</button>
-                        <button onclick="pembelianApplySort('stock')" class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition block">Stok</button>
+                    <div id="dropdown-pembelian-sort" class="absolute left-0 top-10 w-40 bg-white rounded-md shadow-2xl py-1 hidden z-50 text-xs text-gray-900 border border-gray-100">
+                        <button onclick="pembelianApplySort('name')" class="w-full text-left px-4 py-2.5 font-bold hover:bg-emerald-50 transition block border-b border-gray-50">Barang</button>
+                        <button onclick="pembelianApplySort('sku')" class="w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition block border-b border-gray-50">Kode</button>
+                        <button onclick="pembelianApplySort('stock')" class="w-full text-left px-4 py-2.5 hover:bg-emerald-50 transition block">Stok</button>
                     </div>
                 </div>
                 <div class="relative flex-1">
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400"><i class="fa-solid fa-search text-sm"></i></span>
-                    <input type="text" id="input-search-pembelian" oninput="renderPembelianProductList(this.value)" placeholder="Cari nama atau kode barang" class="w-full pl-10 pr-4 py-2 border border-emerald-600 rounded-full text-xs text-gray-900 focus:outline-none focus:border-emerald-700 bg-white">
+                    <input type="text" id="input-search-pembelian" oninput="renderPembelianProductList(this.value)" placeholder="Cari nama atau kode barang" class="w-full pl-10 pr-4 py-2 border border-emerald-600 rounded-full text-xs text-gray-900 focus:outline-none">
                 </div>
                 <button onclick="if(window.openScannerView) window.openScannerView('pembelian')" class="text-emerald-700 text-xl px-2"><i class="fa-solid fa-barcode"></i></button>
             </div>
 
-            <!-- Daftar Produk Vertikal -->
             <div class="flex-1 overflow-y-auto pb-24 bg-gray-50 divide-y divide-gray-200" onclick="document.getElementById('dropdown-pembelian-main').classList.add('hidden'); document.getElementById('dropdown-pembelian-sort').classList.add('hidden');">
                 <div onclick="pembelianBuatBarangBaru()" class="p-4 flex items-center space-x-4 bg-white hover:bg-emerald-50 cursor-pointer transition">
                     <div class="w-12 h-12 rounded-full border-2 border-dashed border-emerald-500 bg-emerald-50 flex items-center justify-center text-emerald-600 text-xl font-bold flex-shrink-0">
@@ -61,6 +58,21 @@
                     <span><span id="pembelian-cart-count" class="text-base font-extrabold mr-1">0</span> Barang</span>
                     <span>LANJUT <i class="fa-solid fa-chevron-right ml-2"></i></span>
                 </button>
+            </div>
+        </div>
+
+        <!-- === 2. PENGATURAN PEMBELIAN === -->
+        <div id="view-pengaturan-pembelian" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-white hidden relative z-30">
+            <div class="px-4 py-3 bg-emerald-600 border-b flex items-center space-x-3 shadow-sm z-10 text-white">
+                <button onclick="document.getElementById('view-pengaturan-pembelian').classList.add('hidden'); document.getElementById('view-pembelian').classList.remove('hidden');" class="text-white text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                <h2 class="text-base font-bold tracking-wide">Pengaturan Pembelian</h2>
+            </div>
+            <div class="flex-1 p-4 space-y-4 text-xs font-semibold text-gray-900">
+                <p class="text-gray-500">Mode Pencarian Barcode Barang</p>
+                <label class="flex items-center space-x-3 cursor-pointer">
+                    <div class="w-5 h-5 rounded bg-emerald-600 flex items-center justify-center text-white text-xs"><i class="fa-solid fa-check"></i></div>
+                    <span>Barang Default</span>
+                </label>
             </div>
         </div>
 
@@ -81,14 +93,14 @@
             <div id="rincian-pembelian-supplier-tab" class="hidden px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center text-xs font-bold text-gray-900 shadow-xs">
                 <div class="flex items-center space-x-2.5">
                     <i class="fa-solid fa-file-invoice text-emerald-600 text-base"></i>
-                    <span>Order <span class="font-extrabold text-gray-700" id="rincian-pembelian-supplier-name">Camel (dus)</span></span>
+                    <span>Order <span class="font-extrabold text-gray-700" id="rincian-pembelian-supplier-name">Supplier</span></span>
                 </div>
                 <button onclick="pembelianRemoveSupplier()" class="text-gray-400 hover:text-red-500 text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
 
-            <div class="px-4 py-3 bg-white flex justify-between items-center relative z-20 shadow-xs border-b">
+            <div class="px-4 py-3 bg-white flex justify-between items-center relative z-20 border-b shadow-xs">
                 <div class="flex space-x-3">
-                    <button onclick="alert('Sorting Nama')" class="border border-emerald-600 rounded-full px-4 py-1.5 text-xs font-bold text-emerald-700 flex items-center space-x-1.5 hover:bg-emerald-50">
+                    <button class="border border-emerald-600 rounded-full px-4 py-1.5 text-xs font-bold text-emerald-700 flex items-center space-x-1.5 hover:bg-emerald-50">
                         <i class="fa-solid fa-arrow-up-wide-short"></i><span>Nama</span>
                     </button>
                     <button onclick="document.getElementById('modal-rincian-biaya').classList.remove('hidden')" class="border border-emerald-600 rounded-full px-4 py-1.5 text-xs font-bold text-emerald-700 flex items-center space-x-1.5 hover:bg-emerald-50">
@@ -104,7 +116,7 @@
                 <button onclick="pembelianGoToPembayaran()" type="button" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-full shadow-lg transition active:scale-95 text-xs uppercase tracking-wider">
                     BAYAR
                 </button>
-                <button onclick="alert('Masuk Draf')" type="button" class="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-3.5 px-6 rounded-full shadow-sm transition active:scale-95 text-xs uppercase tracking-wider flex items-center space-x-2">
+                <button onclick="pembelianSimpanKeDraft()" type="button" class="bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-bold py-3.5 px-6 rounded-full shadow-sm transition active:scale-95 text-xs uppercase tracking-wider flex items-center space-x-2">
                     <i class="fa-solid fa-file-invoice"></i><span>SIMPAN</span>
                 </button>
             </div>
@@ -139,7 +151,6 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3 mb-3">
-                    <!-- Native Date Picker for Android Mobile -->
                     <input type="datetime-local" id="input-pembayaran-date" class="w-full border border-gray-300 rounded-lg p-3 text-xs font-bold text-gray-900 bg-white focus:outline-none focus:border-emerald-600 shadow-sm">
                     <div class="relative">
                         <select class="w-full border border-gray-300 rounded-lg p-3 text-xs font-bold text-gray-900 appearance-none bg-white focus:outline-none shadow-sm">
@@ -155,7 +166,7 @@
                     <input type="text" id="input-pembayaran-keterangan" placeholder="Keterangan untuk di struk" class="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-lg text-xs font-bold text-gray-900 focus:outline-none focus:border-emerald-600 bg-gray-50">
                 </div>
 
-                <!-- SLIDER NUMPAD & NOMINAL CEPAT -->
+                <!-- SLIDER NUMPAD -->
                 <div class="flex-1 relative overflow-hidden mt-2 bg-gray-50 rounded-2xl p-2 pb-0 border border-gray-100">
                     <div id="pembayaran-slider-track" class="absolute top-0 left-0 w-[200%] h-full flex transition-transform duration-300 ease-in-out pb-4">
                         
@@ -185,14 +196,13 @@
                             </div>
                         </div>
 
-                        <!-- Panel Kanan: Nominal Cepat Hijau -->
+                        <!-- Panel Kanan: Nominal Cepat -->
                         <div class="w-1/2 h-full px-2 overflow-y-auto">
                             <button onclick="pembelianSlideNumpad('left')" class="w-full bg-white border border-emerald-600 text-emerald-700 font-bold py-3 rounded-lg shadow-sm text-xs flex items-center justify-center space-x-2 mb-3">
                                 <i class="fa-regular fa-keyboard text-lg"></i><span>Ketik Manual</span>
                             </button>
                             <div class="grid grid-cols-2 gap-3" id="pembayaran-fastcash-container"></div>
                         </div>
-
                     </div>
                 </div>
 
@@ -216,7 +226,7 @@
                         <div class="flex justify-between items-center"><span>Supplier</span><span class="text-emerald-600 font-bold" id="succ-sup">-</span></div>
                     </div>
                     <div class="w-full space-y-2 text-xs font-extrabold text-gray-900">
-                        <button onclick="alert('Struk sedang dicetak...')" class="w-full flex justify-between items-center py-3 border-b border-gray-100 hover:bg-gray-50"><span>Cetak Struk Pembelian</span><i class="fa-solid fa-chevron-right text-gray-400"></i></button>
+                        <button class="w-full flex justify-between items-center py-3 border-b border-gray-100 hover:bg-gray-50"><span>Cetak Struk Pembelian</span><i class="fa-solid fa-chevron-right text-gray-400"></i></button>
                         <button onclick="pembelianOpenUbahHarga()" class="w-full flex justify-between items-center py-3 border-b border-gray-100 hover:bg-gray-50 text-amber-600"><span>Ubah Harga Jual Barang</span><i class="fa-solid fa-chevron-right text-amber-400"></i></button>
                     </div>
                 </div>
@@ -226,7 +236,19 @@
             </div>
         </div>
 
-        <!-- SISA MODAL & VIEW (Multisatuan, Rincian, Ubah Harga Jual) DITANGANI DI JS -->
+        <!-- === 6. HALAMAN UBAH HARGA JUAL === -->
+        <div id="view-ubah-harga-jual" class="view-panel flex-1 flex flex-col h-full overflow-hidden bg-gray-50 hidden relative z-50">
+            <div class="px-4 py-3 bg-white border-b flex justify-between items-center shadow-sm z-10">
+                <div class="flex items-center space-x-3">
+                    <button onclick="document.getElementById('view-ubah-harga-jual').classList.add('hidden'); document.getElementById('view-pembelian-success').classList.remove('hidden');" class="text-emerald-700 text-xl font-bold p-1"><i class="fa-solid fa-chevron-left"></i></button>
+                    <h2 class="text-base font-bold text-emerald-700">Ubah Harga Jual</h2>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto pb-24" id="container-ubah-harga-items"></div>
+            <div class="p-4 bg-white border-t absolute bottom-0 left-0 right-0 z-10">
+                <button onclick="document.getElementById('view-ubah-harga-jual').classList.add('hidden'); document.getElementById('view-manajemen-hub').classList.remove('hidden'); alert('Harga jual berhasil diupdate!');" type="button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-lg shadow-lg transition active:scale-95 text-xs uppercase tracking-wider">SIMPAN</button>
+            </div>
+        </div>
     `;
 
     // 2. SUNTIKKAN HTML MODALS KE DALAM #modals-container
@@ -259,12 +281,12 @@
                 <h3 class="font-extrabold text-gray-900 text-sm uppercase tracking-wider mb-4 text-center border-b border-gray-100 pb-3">MASUKKAN JUMLAH</h3>
                 <div class="flex justify-between items-start mb-5">
                     <div>
-                        <h4 class="font-extrabold text-sm text-emerald-800" id="mul-name">Alas TAR 20 O</h4>
-                        <p class="text-[10px] text-gray-500 font-semibold mt-0.5" id="mul-sku">115</p>
+                        <h4 class="font-extrabold text-sm text-emerald-800" id="mul-name">Nama Barang</h4>
+                        <p class="text-[10px] text-gray-500 font-semibold mt-0.5" id="mul-sku">sku</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-xs text-gray-900 font-extrabold" id="mul-price">Rp 2.000</p>
-                        <p class="text-[10px] text-gray-500 font-semibold mt-0.5">Stok: <span id="mul-stock">195</span></p>
+                        <p class="text-xs text-gray-900 font-extrabold" id="mul-price">Rp 0</p>
+                        <p class="text-[10px] text-gray-500 font-semibold mt-0.5">Stok: <span id="mul-stock">0</span></p>
                     </div>
                 </div>
                 <div class="space-y-4 mb-5">
@@ -282,7 +304,7 @@
                         <span class="block text-gray-500 font-semibold mb-1">Harga Beli Baru per Satuan</span>
                         <div class="flex border border-emerald-600 rounded-lg overflow-hidden">
                             <div class="bg-emerald-50 text-emerald-700 font-bold px-4 flex items-center justify-center">Rp</div>
-                            <input type="number" id="mul-buyprice" value="950" class="w-full p-3 px-3 font-bold text-gray-900 focus:outline-none">
+                            <input type="number" id="mul-buyprice" value="0" class="w-full p-3 px-3 font-bold text-gray-900 focus:outline-none">
                         </div>
                     </div>
                 </div>
@@ -311,17 +333,6 @@
     let activeProductToAdd = null;
     let paymentCashAmount = 0;
 
-    // Inisialisasi Numpad DateTime Pembelian
-    setTimeout(() => {
-        const dtInput = document.getElementById('input-pembayaran-date');
-        if (dtInput) {
-            const now = new Date();
-            const offset = now.getTimezoneOffset() * 60000;
-            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
-            dtInput.value = localISOTime;
-        }
-    }, 500);
-
     // Hook Navigasi
     const prevSwitchView = window.switchView;
     window.switchView = function(viewName) {
@@ -329,7 +340,6 @@
         if (viewName === 'pembelian') {
             const mainHeader = document.getElementById('main-header');
             if (mainHeader) mainHeader.classList.add('hidden');
-            window.pembelianInitCategories();
             window.renderPembelianProductList();
         }
     };
@@ -338,54 +348,15 @@
         return Number(val || 0).toLocaleString('id-ID', {minimumFractionDigits:0, maximumFractionDigits:2});
     }
 
-    // --- KERANJANG UTAMA & PENGATURAN ---
-    window.pembelianInitCategories = () => {
-        const catBox = document.getElementById('container-pembelian-categories');
-        if (!catBox || catBox.children.length > 0) return;
-        
-        let cats = ["Semua"];
-        (window.products || []).forEach(p => {
-            const c = p.category && p.category.trim() !== '' ? p.category.trim() : 'Umum';
-            if (!cats.includes(c)) cats.push(c);
-        });
-
-        catBox.innerHTML = '';
-        cats.forEach((c, idx) => {
-            const cls = idx === 0 
-                ? 'bg-emerald-600 text-white border-emerald-600 font-bold rounded-full px-4 py-1.5 border' 
-                : 'bg-white text-emerald-600 border-emerald-600 font-semibold rounded-full px-4 py-1.5 border hover:bg-emerald-50';
-            catBox.innerHTML += `<button onclick="pembelianSelectCategory('${c}')" id="btn-pembelian-cat-${c.replace(/\s+/g, '-')}" class="${cls} transition text-[11px]">${c}</button>`;
-        });
-    };
-
-    window.pembelianSelectCategory = (cat) => {
-        document.querySelectorAll('#container-pembelian-categories button').forEach(b => {
-            b.className = "bg-white text-emerald-600 border-emerald-600 font-semibold rounded-full px-4 py-1.5 border hover:bg-emerald-50 transition text-[11px]";
-        });
-        const activeBtn = document.getElementById(`btn-pembelian-cat-${cat.replace(/\s+/g, '-')}`);
-        if (activeBtn) activeBtn.className = "bg-emerald-600 text-white border-emerald-600 font-bold rounded-full px-4 py-1.5 border transition text-[11px]";
-        
-        const k = document.getElementById('input-search-pembelian').value.toLowerCase();
-        let list = window.products || [];
-        if(cat !== 'Semua') list = list.filter(p => (p.category || 'Umum') === cat);
-        if(k) list = list.filter(p => (p.name || '').toLowerCase().includes(k) || (p.sku || '').toLowerCase().includes(k));
-        
-        renderPembelianListItems(list);
-    };
-
+    // --- KERANJANG UTAMA ---
     window.renderPembelianProductList = function(keyword = '') {
-        const k = keyword.toLowerCase();
-        let list = window.products || [];
-        if(k) {
-            list = list.filter(p => (p.name || '').toLowerCase().includes(k) || (p.sku || '').toLowerCase().includes(k));
-        }
-        renderPembelianListItems(list);
-    };
-
-    function renderPembelianListItems(list) {
         const container = document.getElementById('container-pembelian-products');
         if (!container) return;
         container.innerHTML = '';
+        
+        const k = keyword.toLowerCase();
+        let list = window.products || [];
+        if(k) list = list.filter(p => (p.name || '').toLowerCase().includes(k) || (p.sku || '').toLowerCase().includes(k));
         
         if(list.length === 0) {
             container.innerHTML = `<div class="p-8 text-center text-xs font-semibold text-gray-400">Barang tidak ditemukan.</div>`;
@@ -400,7 +371,6 @@
             
             const cItems = pembelianCart.filter(c => c.product.id === p.id);
             const selQty = cItems.reduce((s, x) => s + x.qty, 0);
-
             const badgeQty = selQty > 0 ? `<div class="flex-shrink-0 w-8 h-8 rounded border border-gray-300 flex items-center justify-center text-gray-900 font-extrabold text-sm bg-white shadow-xs ml-3">${selQty}</div>` : '';
 
             container.innerHTML += `
@@ -411,7 +381,7 @@
                         </div>
                         <div class="min-w-0 pt-0.5">
                             <h4 class="font-extrabold text-[13px] text-gray-700 truncate">${p.name}</h4>
-                            <p class="text-[10px] text-gray-500 font-semibold mt-0.5">sisa <span class="${sColor}">${stk}</span> <span class="mx-1">â€¢</span> Beli Rp ${bpFormat}</p>
+                            <p class="text-[10px] text-gray-500 font-semibold mt-0.5">sisa <span class="${sColor}">${stk}</span> <span class="mx-1">•</span> Beli Rp ${bpFormat}</p>
                         </div>
                     </div>
                     ${badgeQty}
@@ -462,11 +432,8 @@
         const existingIdx = pembelianCart.findIndex(c => c.product.id === activeProductToAdd.id);
         const newItem = { product: activeProductToAdd, qty: q, buyPrice: bp };
         
-        if (existingIdx >= 0) {
-            pembelianCart[existingIdx] = newItem;
-        } else {
-            pembelianCart.push(newItem);
-        }
+        if (existingIdx >= 0) pembelianCart[existingIdx] = newItem;
+        else pembelianCart.push(newItem);
 
         document.getElementById('modal-pembelian-multisatuan').classList.add('hidden');
         window.renderPembelianProductList(document.getElementById('input-search-pembelian').value);
@@ -478,7 +445,7 @@
 
     // --- RINCIAN PEMBELIAN ---
     window.pembelianLanjutKeRincian = () => {
-        if (pembelianCart.length === 0) return alert("Pilih minimal 1 barang untuk dibeli ke supplier!");
+        if (pembelianCart.length === 0) return alert("Pilih minimal 1 barang untuk dibeli!");
         document.querySelectorAll('.view-panel').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-rincian-pembelian').classList.remove('hidden');
         window.renderRincianPembelianItems();
@@ -492,8 +459,6 @@
         pembelianCart.forEach((item, idx) => {
             const itemTotal = item.qty * item.buyPrice;
             subtotal += itemTotal;
-            const initials = item.product.name ? item.product.name.substring(0, 2).toUpperCase() : 'RL';
-
             container.innerHTML += `
                 <div onclick="pembelianOpenMultiSatuanModal('${item.product.id}')" class="px-4 py-3.5 flex items-start space-x-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 bg-white">
                     <span class="text-[11px] font-bold text-gray-400 mt-0.5 w-4">${idx + 1}</span>
@@ -508,16 +473,6 @@
 
         const gTotal = subtotal + pembelianBiayaNominal;
         document.getElementById('rincian-pembelian-grandtotal').innerText = `Rp ${fmtRp(gTotal)}`;
-
-        const tabSup = document.getElementById('rincian-pembelian-supplier-tab');
-        if (pembelianSupplier) {
-            document.getElementById('rincian-pembelian-supplier-name').innerText = pembelianSupplier.name;
-            tabSup.classList.remove('hidden');
-            tabSup.classList.add('flex');
-        } else {
-            tabSup.classList.add('hidden');
-            tabSup.classList.remove('flex');
-        }
 
         const lblBiaya = document.getElementById('rincian-label-biaya');
         if (pembelianBiayaNominal > 0) {
@@ -540,14 +495,11 @@
         } else {
             window.renderRincianPembelianItems();
             window.updatePembelianCartCount();
-            window.renderPembelianProductList(document.getElementById('input-search-pembelian').value);
         }
     };
 
     window.pembelianSaveBiayaTambahan = () => {
-        const name = document.getElementById('input-rin-biaya-name').value.trim() || 'Ongkir';
         const val = parseFloat(document.getElementById('input-rin-biaya-val').value) || 0;
-        pembelianBiayaLabel = name;
         pembelianBiayaNominal = val;
         document.getElementById('modal-rincian-biaya').classList.add('hidden');
         window.renderRincianPembelianItems();
@@ -561,6 +513,13 @@
         let subtotal = pembelianCart.reduce((s, x) => s + (x.qty * x.buyPrice), 0);
         let gTotal = subtotal + pembelianBiayaNominal; 
         document.getElementById('pembayaran-grandtotal').innerText = `Rp ${fmtRp(gTotal)}`;
+        
+        // Native DateTime Input
+        try {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            document.getElementById('input-pembayaran-date').value = (new Date(now - offset)).toISOString().slice(0, 16);
+        } catch(e) {}
         
         paymentCashAmount = gTotal; // Default uang pas untuk pembelian supplier
         
@@ -578,11 +537,8 @@
             display.innerText = "Rp 0";
             display.classList.remove('text-emerald-600');
             display.classList.add('text-gray-400');
-            if(!pembelianSupplier) {
-                alert("Harap pilih Supplier terlebih dahulu untuk mencatat hutang!");
-                document.getElementById('chk-pembayaran-hutang').checked = false;
-                window.pembelianToggleHutangMode(false);
-            }
+            // Mock Supplier Picker
+            document.getElementById('chk-pembayaran-hutang').checked = true;
         } else {
             numpad.classList.remove('opacity-30', 'pointer-events-none');
             window.pembelianRefreshCashDisplay();
@@ -636,8 +592,7 @@
     window.renderFastCashButtons = () => {
         const box = document.getElementById('pembayaran-fastcash-container');
         box.innerHTML = `<button onclick="pembelianSetCashAmount('pas')" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-md shadow-xs text-sm active:bg-emerald-700">Uang Pas</button>`;
-        const noms = [10000, 50000, 100000, 500000, 1000000, 5000000];
-        noms.forEach(nom => {
+        [10000, 50000, 100000, 500000, 1000000].forEach(nom => {
             box.innerHTML += `<button onclick="pembelianSetCashAmount(${nom})" class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-md shadow-xs text-sm active:bg-emerald-700">${fmtRp(nom)}</button>`;
         });
     };
@@ -646,32 +601,27 @@
     window.pembelianSelesaiTransaksi = async () => {
         let subtotal = pembelianCart.reduce((s, x) => s + (x.qty * x.buyPrice), 0);
         let gTotal = subtotal + pembelianBiayaNominal;
-
         const isHutang = document.getElementById('chk-pembayaran-hutang').checked;
-
         if(!isHutang && paymentCashAmount < gTotal) return alert("Uang pembayaran kurang!");
 
         try {
-            // TAMBAH STOK FISIK DI DATABASE GLOBAL window.products (JIKA BARANG PAKE STOK)
+            // SINKRONISASI STOK KE DATABASE GLOBAL window.products 
+            const nowStr = window.getFormattedCurrentDateTime();
             for (let item of pembelianCart) {
                 const prod = window.products.find(p => p.id === item.product.id);
                 if (prod && prod.useStock !== false) {
-                    // Update Harga Beli Terakhir
-                    prod.buyPrice = item.buyPrice;
-                    // Tambah Stok
-                    prod.stock = (Number(prod.stock) || 0) + item.qty;
+                    prod.buyPrice = item.buyPrice; // Update HPP
+                    prod.stock = (Number(prod.stock) || 0) + item.qty; // Tambah Stok
                     
-                    // Tambahkan Batch Stok FIFO
+                    // FIFO Batches
                     if (!prod.stockBatches) prod.stockBatches = [];
-                    prod.stockBatches.push({
-                        dateStr: window.getFormattedCurrentDateTime().split(' ')[0].replace(/\//g, ' '),
-                        fullDate: window.getFormattedCurrentDateTime(),
+                    prod.stockBatches.unshift({
+                        dateStr: nowStr.split(' ')[0].replace(/\//g, ' '),
+                        fullDate: nowStr,
                         stock: item.qty,
-                        buyPrice: item.buyPrice,
-                        notes: "Pembelian Supplier"
+                        buyPrice: item.buyPrice
                     });
                     
-                    // Simpan ke Firestore jika online
                     if(window.fb && window.db && !String(prod.id).startsWith('local_')) {
                         await window.fb.updateDoc(window.fb.doc(window.db, "products", prod.id), { 
                             stock: prod.stock,
@@ -686,9 +636,7 @@
             document.getElementById('view-pembelian-success').classList.remove('hidden');
             
             document.getElementById('succ-total').innerText = `Rp ${fmtRp(gTotal)}`;
-            document.getElementById('succ-paid').innerText = `Rp ${fmtRp(isHutang ? 0 : paymentCashAmount)}`;
             document.getElementById('succ-change').innerText = `Rp ${fmtRp(isHutang ? 0 : Math.max(0, paymentCashAmount - gTotal))}`;
-            document.getElementById('succ-sup').innerText = pembelianSupplier ? pembelianSupplier.name : "-";
             
         } catch(e) {
             console.error("Gagal sinkronisasi transaksi:", e);
@@ -703,10 +651,32 @@
         
         document.getElementById('view-pembelian-success').classList.add('hidden');
         document.getElementById('view-manajemen-hub').classList.remove('hidden');
-        
-        // REFRESH LAYAR AGAR STOK YANG BERTAMBAH LANGSUNG TERLIHAT
-        window.renderPembelianProductList(document.getElementById('input-search-pembelian').value);
+        window.renderPembelianProductList('');
         window.updatePembelianCartCount();
+        if(window.renderInventoryCards) window.renderInventoryCards(window.products);
+    };
+
+    window.pembelianOpenUbahHarga = () => {
+        document.getElementById('view-pembelian-success').classList.add('hidden');
+        document.getElementById('view-ubah-harga-jual').classList.remove('hidden');
+        const container = document.getElementById('container-ubah-harga-items');
+        container.innerHTML = '';
+        pembelianCart.forEach((item, idx) => {
+            container.innerHTML += `
+                <div class="px-4 py-3 bg-white border-b border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                    <div>
+                        <h4 class="font-extrabold text-xs text-gray-900">${item.product.name}</h4>
+                        <div class="mt-2 text-xs font-semibold text-gray-500">Harga Beli Lama Rp ${fmtRp(item.product.buyPrice)}</div>
+                        <div class="mt-0.5 text-xs font-bold text-gray-600">Harga Beli Baru <span class="text-emerald-600">Rp ${fmtRp(item.buyPrice)}</span></div>
+                    </div>
+                </div>
+            `;
+        });
+    };
+
+    window.pembelianSaveUbahHarga = () => {
+        alert("Harga jual baru berhasil disimpan.");
+        pembelianSelesaiTutup();
     };
 
 })();
